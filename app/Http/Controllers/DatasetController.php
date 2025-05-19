@@ -11,7 +11,13 @@ class DatasetController extends Controller
     // Display dataset
     public function index()
     {
-        $datasets = Dataset::orderBy('tanggal')->get(); // Sort datasets by tanggal
+        // Get datasets sorted by date
+        $datasets = Dataset::orderBy('tanggal')->get();
+
+        // Group datasets by month
+        $groupedDatasets = $datasets->groupBy(function ($dataset) {
+            return Carbon::parse($dataset->tanggal)->format('Y-m'); // Group by year and month (e.g., 2025-05)
+        });
 
         // Format the date and day in Indonesian
         foreach ($datasets as $dataset) {
@@ -20,8 +26,9 @@ class DatasetController extends Controller
             $dataset->hari = $carbonDate->isoFormat('dddd'); // Format day to "Senin", "Selasa", etc.
         }
 
-        return view('pages.dataset.index', compact('datasets'));
+        return view('pages.dataset.index', compact('groupedDatasets'));
     }
+
 
     // Store new dataset
     public function store(Request $request)
@@ -38,7 +45,6 @@ class DatasetController extends Controller
         return redirect()->route('dataset.index')->with('success', 'Dataset created successfully!');
     }
 
-    // Update dataset
     public function update(Request $request, $id)
     {
         $dataset = Dataset::find($id);
@@ -53,7 +59,6 @@ class DatasetController extends Controller
         return redirect()->route('dataset.index')->with('success', 'Dataset updated successfully!');
     }
 
-    // Delete dataset
     public function destroy($id)
     {
         $dataset = Dataset::find($id);
@@ -61,4 +66,5 @@ class DatasetController extends Controller
 
         return redirect()->route('dataset.index')->with('success', 'Dataset deleted successfully!');
     }
+
 }

@@ -26,7 +26,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if ($datasets->isEmpty())
+                            @if ($groupedDatasets->isEmpty())
                                 <tr>
                                     <td colspan="7" class="text-center">
                                         <div class="alert alert-warning">
@@ -35,23 +35,30 @@
                                     </td>
                                 </tr>
                             @else
-                                @foreach ($datasets as $key => $dataset)
+                                @foreach ($groupedDatasets as $month => $monthlyDatasets)
                                     <tr>
-                                        <td class="text-center">{{ $key + 1 }}</td> <!-- Automatically calculated -->
-                                        <td>{{ $dataset->tanggal }}</td> <!-- 20 Mei 2025 -->
-                                        <td>{{ $dataset->hari }}</td> <!-- Senin -->
-                                        <td>{{ $dataset->datang }}</td>
-                                        <td>{{ $dataset->berangkat }}</td>
-                                        <td class="text-center">
-                                            <!-- Edit Button -->
-                                            <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                                data-target="#editModal-{{ $dataset->id }}">Edit</button>
-                                            <!-- Delete Button -->
-                                            <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                data-target="#deleteModal-{{ $dataset->id }}">Delete</button>
+                                        <td colspan="7" class="text-center"><strong>Bulan:
+                                                {{ \Carbon\Carbon::parse($month . '-01')->locale('id')->isoFormat('MMMM YYYY') }}</strong>
                                         </td>
-
                                     </tr>
+
+                                    @foreach ($monthlyDatasets as $key => $dataset)
+                                        <tr>
+                                            <td class="text-center">{{ $key + 1 }}</td>
+                                            <td>{{ $dataset->tanggal }}</td> <!-- 20 Mei 2025 -->
+                                            <td>{{ $dataset->hari }}</td> <!-- Senin -->
+                                            <td>{{ $dataset->datang }}</td>
+                                            <td>{{ $dataset->berangkat }}</td>
+                                            <td class="text-center">
+                                                <!-- Edit Button -->
+                                                <button class="btn btn-warning btn-sm" data-toggle="modal"
+                                                    data-target="#editModal-{{ $dataset->id }}">Edit</button>
+                                                <!-- Delete Button -->
+                                                <button class="btn btn-danger btn-sm" data-toggle="modal"
+                                                    data-target="#deleteModal-{{ $dataset->id }}">Delete</button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 @endforeach
                             @endif
                         </tbody>
@@ -99,92 +106,112 @@
     </div>
 
     <!-- Edit Modal -->
-    @foreach ($datasets as $dataset)
-        <div class="modal fade" id="editModal-{{ $dataset->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="editModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Edit Dataset</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="{{ route('dataset.update', $dataset->id) }}" method="POST">
-                            @csrf
-                            @method('PUT')
-                            <div class="form-group">
-                                <label for="editTanggal">Tanggal</label>
-                                <input type="date" class="form-control" id="editTanggal" name="tanggal"
-                                    value="{{ $dataset->tanggal }}" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="editDatang">Datang</label>
-                                <input type="number" class="form-control" id="editDatang" name="datang"
-                                    value="{{ $dataset->datang }}" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="editBerangkat">Berangkat</label>
-                                <input type="number" class="form-control" id="editBerangkat" name="berangkat"
-                                    value="{{ $dataset->berangkat }}" required>
-                            </div>
-                            <div class="form-group">
-                                <button type="submit" class="btn btn-primary">Update</button>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            </div>
-                        </form>
+    @foreach ($groupedDatasets as $monthlyDatasets)
+        @foreach ($monthlyDatasets as $dataset)
+            <div class="modal fade" id="editModal-{{ $dataset->id }}" tabindex="-1" role="dialog"
+                aria-labelledby="editModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Edit Dataset</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ route('dataset.update', $dataset->id) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <div class="form-group">
+                                    <label for="editTanggal">Tanggal</label>
+                                    <input type="date" class="form-control" id="editTanggal" name="tanggal"
+                                        value="{{ $dataset->tanggal }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editDatang">Datang</label>
+                                    <input type="number" class="form-control" id="editDatang" name="datang"
+                                        value="{{ $dataset->datang }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editBerangkat">Berangkat</label>
+                                    <input type="number" class="form-control" id="editBerangkat" name="berangkat"
+                                        value="{{ $dataset->berangkat }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary">Update</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endforeach
     @endforeach
 
     <!-- Delete Modal -->
-    @foreach ($datasets as $dataset)
-        <div class="modal fade" id="deleteModal-{{ $dataset->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="deleteModalLabel" aria-hidden="true">
+    @foreach ($groupedDatasets as $monthlyDatasets)
+        @foreach ($monthlyDatasets as $dataset)
+            <div class="modal fade" id="deleteModal-{{ $dataset->id }}" tabindex="-1" role="dialog"
+                aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Delete Dataset</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete this dataset?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <form action="{{ route('dataset.destroy', $dataset->id) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    @endforeach
+
+
+
+    <!-- Toast message for success -->
+    @if (session('success'))
+        <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Delete Dataset</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <h5 class="modal-title">Success</h5>
+
                     </div>
                     <div class="modal-body">
-                        <p>Are you sure you want to delete this dataset?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <form action="{{ route('dataset.destroy', $dataset->id) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-danger">Delete</button>
-                        </form>
+                        <p>{{ session('success') }}</p>
                     </div>
                 </div>
             </div>
         </div>
-    @endforeach
+    @endif
 
 @endsection
 
-
-
-@push('css')
-    <link href="{{ asset('vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
-@endpush
-
 @push('script')
-    <script src="{{ asset('vendor/datatables/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
     <script>
-        $(document).ready(function() {
-            $('#dataTable').DataTable({
-                "pageLength": 5,
-                "lengthMenu": [5, 10, 25, 50, 100]
-            });
-        });
+        // Show success modal if there is a success session message
+        @if (session('success'))
+            // Show the success modal
+            $('#successModal').modal('show');
+
+            // Automatically close it after 3 seconds
+            setTimeout(function() {
+                $('#successModal').modal('hide');
+            }, 3000);
+        @endif
     </script>
 @endpush
