@@ -35,28 +35,23 @@
                                     </td>
                                 </tr>
                             @else
-                                @foreach ($datasets->groupBy(function ($dataset) {
-            return date('m', strtotime($dataset->tanggal)); // Mengelompokkan berdasarkan bulan
-        }) as $month => $monthlyDatasets)
-                                    @foreach ($monthlyDatasets as $key => $dataset)
-                                        <tr>
-                                            <!-- Nomor urut berdasarkan bulan yang dimulai dari 1 -->
-                                            <td class="text-center">{{ $key + 1 }}</td>
+                                @foreach ($datasets as $key => $dataset)
+                                    <tr>
+                                        <td class="text-center">{{ $key + 1 }}</td> <!-- Automatically calculated -->
+                                        <td>{{ $dataset->tanggal }}</td> <!-- 20 Mei 2025 -->
+                                        <td>{{ $dataset->hari }}</td> <!-- Senin -->
+                                        <td>{{ $dataset->datang }}</td>
+                                        <td>{{ $dataset->berangkat }}</td>
+                                        <td class="text-center">
+                                            <!-- Edit Button -->
+                                            <button class="btn btn-warning btn-sm" data-toggle="modal"
+                                                data-target="#editModal-{{ $dataset->id }}">Edit</button>
+                                            <!-- Delete Button -->
+                                            <button class="btn btn-danger btn-sm" data-toggle="modal"
+                                                data-target="#deleteModal-{{ $dataset->id }}">Delete</button>
+                                        </td>
 
-                                            <td>{{ $dataset->tanggal }}</td>
-                                            <td>{{ $dataset->hari }}</td>
-                                            <td>{{ $dataset->datang }}</td>
-                                            <td>{{ $dataset->berangkat }}</td>
-                                            <td class="text-center">
-                                                <!-- Edit Button -->
-                                                <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                                    data-target="#editModal-{{ $dataset->id }}">Edit</button>
-                                                <!-- Delete Button -->
-                                                <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                    data-target="#deleteModal-{{ $dataset->id }}">Delete</button>
-                                            </td>
-                                        </tr>
-                                    @endforeach
+                                    </tr>
                                 @endforeach
                             @endif
                         </tbody>
