@@ -11,8 +11,7 @@ class Dataset extends Model
 
     // Menentukan kolom mana yang bisa diisi (fillable)
     protected $fillable = [
-        'urut',
-        'no',
+
         'tanggal',
         'hari',
         'datang',

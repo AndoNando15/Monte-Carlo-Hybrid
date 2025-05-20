@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DataAdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DatasetController;
+use App\Http\Controllers\MonteCarlo\BerangkatController;
 use App\Http\Controllers\MonteCarlo\DatangController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,7 +27,7 @@ Route::middleware('auth')->group(function () {
 
     // Monte Carlo
     Route::resource('monteCarlo-datang', DatangController::class);
-
+    ROute::resource('monteCarlo-berangkat', BerangkatController::class);
 
 });
 

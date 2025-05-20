@@ -119,8 +119,29 @@
 
             <!-- Heading -->
             <div class="sidebar-heading">
-                Manajemen Akun
+                Manajemen Metode
             </div>
+            <!-- Nav Item - Pages Collapse Menu -->
+            <!-- Nav Item - Monte Carlo Collapse Menu -->
+            <li class="nav-item {{ request()->is('monteCarlo-*') ? 'active' : '' }}">
+                <a class="nav-link {{ request()->is('monteCarlo-*') ? '' : 'collapsed' }}" href="#"
+                    data-toggle="collapse" data-target="#collapseTwo"
+                    aria-expanded="{{ request()->is('monteCarlo-*') ? 'true' : 'false' }}" aria-controls="collapseTwo">
+                    <i class="fas fa-fw fa-cog"></i>
+                    <span>Monte Carlo</span>
+                </a>
+                <div id="collapseTwo" class="collapse {{ request()->is('monteCarlo-*') ? 'show' : '' }}"
+                    aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Prediksi Monte Carlo:</h6>
+                        <a class="collapse-item {{ request()->is('monteCarlo-datang') ? 'active' : '' }}"
+                            href="{{ url('/monteCarlo-datang') }}">Datang</a>
+                        <a class="collapse-item {{ request()->is('monteCarlo-berangkat') ? 'active' : '' }}"
+                            href="{{ url('/monteCarlo-berangkat') }}">Berangkat</a>
+                    </div>
+                </div>
+            </li>
+
 
             <!-- Sidebar Toggler (Sidebar) -->
             {{-- <div class="text-center d-none d-md-inline">
@@ -305,7 +326,8 @@
                                 @if (Auth::check())
                                     <span class="mr-2 d-none d-lg-inline text-gray-600 small"> {{ Auth::user()->name }}
                                     </span>
-                                    <img class="img-profile rounded-circle" src="{{ asset('img/undraw_profile.svg') }}">
+                                    <img class="img-profile rounded-circle"
+                                        src="{{ asset('img/undraw_profile.svg') }}">
                                 @endif
                             </a>
                             <!-- Dropdown - User Information -->
