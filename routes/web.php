@@ -27,7 +27,10 @@ Route::middleware('auth')->group(function () {
 
     // Monte Carlo
     Route::resource('monteCarlo-datang', DatangController::class);
-    ROute::resource('monteCarlo-berangkat', BerangkatController::class);
+    Route::resource('monteCarlo-berangkat', BerangkatController::class);
+    Route::get('/monteCarlo-datang/refresh', [DatangController::class, 'refresh']);
+    Route::get('/montecarlo/refresh-all', [DatangController::class, 'refreshAll'])->name('montecarlo.refreshAll');
+
 
 });
 
