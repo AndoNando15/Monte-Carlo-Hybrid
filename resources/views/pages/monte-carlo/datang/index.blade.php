@@ -7,7 +7,9 @@
                 <h4 class="m-0 font-weight-bold text-primary">Monte Carlo | Datang</h4>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
+
+                <!-- Grouped Data Table (If no month is selected) -->
+                <div class="table-responsive mt-4">
                     <table class="table table-bordered table-striped" id="dataTable">
                         <thead>
                             <tr class="text-center">
@@ -40,98 +42,63 @@
                             @endif
                         </tbody>
                     </table>
-
-                    <hr>
-
-                    <h4 class="text-center">Angka Acak yang Digunakan dalam Simulasi</h4>
-                    <table class="table table-bordered table-striped">
-                        <thead>
-                            <tr class="text-center">
-                                <th>No</th>
-                                <th>Angka Acak 1</th>
-                                <th>Angka Acak 2</th>
-                                <th>Angka Acak 3</th>
-                                <th>Angka Acak 4</th>
-                                <th>Angka Acak 5</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($randomNumbers as $index => $randoms)
-                                <tr class="text-center">
-                                    <td>{{ $index + 1 }}</td>
-                                    @foreach ($randoms as $random)
-                                        <td>{{ $random }}</td>
-                                    @endforeach
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-
-                    <hr>
-
-                    <h4 class="text-center">Simulasi Monte Carlo (22 Hari)</h4>
-                    <table class="table table-bordered table-striped">
-                        <thead>
-                            <tr class="text-center">
-                                <th>No</th>
-                                <th>Simulasi 1</th>
-                                <th>Simulasi 2</th>
-                                <th>Simulasi 3</th>
-                                <th>Simulasi 4</th>
-                                <th>Simulasi 5</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($simulasi as $index => $simulation)
-                                <tr class="text-center">
-                                    <td>{{ $index + 1 }}</td>
-                                    @foreach ($simulation as $sim)
-                                        <td>{{ $sim }}</td>
-                                    @endforeach
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-
-                    <hr>
-
-                    <h4 class="text-center">Absolute Percentage Error (APE) per Simulasi</h4>
-                    <table class="table table-bordered table-striped">
-                        <thead>
-                            <tr class="text-center">
-                                <th>No</th>
-                                <th>APE 1</th>
-                                <th>APE 2</th>
-                                <th>APE 3</th>
-                                <th>APE 4</th>
-                                <th>APE 5</th>
-                                <th>Rata-rata APE</th>
-                                <th>Akurasi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($apeResults as $index => $ape)
-                                <tr class="text-center">
-                                    <td>{{ $index + 1 }}</td>
-                                    @foreach ($ape as $a)
-                                        <td>{{ $a }}%</td>
-                                    @endforeach
-                                    <td>{{ $averageApePerSimulation[$index] }}%</td>
-                                    <td>{{ $accuracyPerSimulation[$index] }}%</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-
-                    <hr>
-
-                    <h4 class="text-center">MAPE (Mean Absolute Percentage Error)</h4>
-                    <p class="text-center">{{ $mape }}%</p>
-
-                    <h4 class="text-center">Akurasi Keseluruhan</h4>
-                    <p class="text-center">{{ $accuracy }}%</p>
-
                 </div>
+
+                <!-- Display Results for the Selected Month (Only if a month is selected) -->
+                @if ($selectedMonth && !empty($selectedMonthResults))
+                    <h5 class="mt-4">Hasil Simulasi untuk Bulan:
+                        {{ \Carbon\Carbon::parse($selectedMonth)->format('F Y') }}</h5>
+
+                    <div class="table-responsive mt-4">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr class="text-center">
+                                    <th>No</th>
+                                    <th>Simulasi Ke-1</th>
+                                    <th>Simulasi Ke-2</th>
+                                    <th>Simulasi Ke-3</th>
+                                    <th>Simulasi Ke-4</th>
+                                    <th>Simulasi Ke-5</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($selectedMonthResults['simulasi'] as $index => $simulation)
+                                    <tr class="text-center">
+                                        <td>{{ $index + 1 }}</td>
+                                        @foreach ($simulation as $sim)
+                                            <td>{{ $sim }}</td>
+                                        @endforeach
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Display MAPE and Accuracy for the Selected Month -->
+                    <div class="mt-4">
+                        <h5>MAPE: {{ $selectedMonthResults['mape'] }}%</h5>
+                        <h5>Akurasi: {{ $selectedMonthResults['accuracy'] }}%</h5>
+                    </div>
+                @elseif ($selectedMonth)
+                    <p class="text-center text-muted">Tidak ada data untuk bulan ini.</p>
+                @endif
+
+                <!-- Dropdown for selecting month (Centered at the bottom) -->
+                <div class="text-center mt-4">
+                    <form method="GET" action="{{ route('monte-carlo.datang.index') }}">
+                        <label for="month" class="font-weight-bold">Pilih Bulan:</label>
+                        <select id="month" name="month" class="form-control d-inline-block w-auto">
+                            <option value="">-- Pilih Bulan --</option>
+                            @foreach ($monthlyResults as $month => $results)
+                                <option value="{{ $month }}" {{ $selectedMonth === $month ? 'selected' : '' }}>
+                                    {{ \Carbon\Carbon::parse($month)->format('F Y') }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <button type="submit" class="btn btn-primary mt-2">Tampilkan</button>
+                    </form>
+                </div>
+
             </div>
         </div>
     </div>

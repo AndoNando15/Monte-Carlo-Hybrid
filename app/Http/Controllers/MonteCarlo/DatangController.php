@@ -6,29 +6,31 @@ use App\Models\Dataset;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Carbon\Carbon;
 
 class DatangController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $datangData = Dataset::pluck('datang');
+        $datangData = Dataset::select('datang', 'tanggal')->get();  // Get both 'datang' and 'tanggal' for grouping
         $groupedDatasets = collect();
         $rangeMapping = [];
         $simulasi = [];
         $randomNumbers = []; // Menyimpan angka acak
         $apeResults = []; // Menyimpan APE per simulasi
-        $averageApePerSimulation = []; // Menyimpan rata-rata APE per simulasi (per hari)
-        $totalApe = 0; // Untuk menghitung MAPE
-        $totalCount = 0; // Untuk menghitung jumlah data APE
+        $monthlyResults = [];
 
         // Mengecek apakah data datang ada
         if (!$datangData->isEmpty()) {
-            $frequencies = $datangData->countBy();
+            $frequencies = $datangData->groupBy('datang')->map(function ($group) {
+                return $group->count();
+            });  // Group by 'datang' value and count the occurrences
+
             $total = $frequencies->sum();
             $cumulative = 0;
 
             // Membuat range, probabilitas, dan komulatif
-            foreach ($frequencies->sortKeys() as $value => $count) {
+            foreach ($frequencies as $value => $count) {
                 $probability = $count / $total;
                 $cumulative += $probability;
                 $min = floor(($cumulative - $probability) * 100);
@@ -50,58 +52,83 @@ class DatangController extends Controller
                 ];
             }
 
-            // Simulasi Monte Carlo: 22 hari, 5 nilai acak per hari
-            for ($i = 0; $i < 22; $i++) {
-                $dailySimulation = [];
-                $dailyRandomNumbers = []; // Menyimpan angka acak untuk setiap hari
+            // Group data by month using 'tanggal' (date) field from the Dataset model
+            $groupedByMonth = $datangData->groupBy(function ($dataset) {
+                return Carbon::parse($dataset->tanggal)->format('M-Y'); // Format date to month-year (e.g., Jan-2023)
+            });
 
-                for ($j = 0; $j < 5; $j++) {
-                    $randomValue = rand(0, 100); // Angka acak antara 0 dan 100
+            // Simulasi Monte Carlo: Simulasi per bulan berdasarkan jumlah hari
+            foreach ($groupedByMonth as $month => $dailyData) {
+                $simulasiPerMonth = [];
+                $randomNumbersPerMonth = [];
+                $apePerMonth = [];
 
-                    // Menyimpan angka acak
-                    $dailyRandomNumbers[] = $randomValue;
+                // Simulasi untuk setiap hari dalam bulan tersebut
+                foreach ($dailyData as $dayData) {
+                    $dailySimulation = [];
+                    $dailyRandomNumbers = [];
 
-                    // Tentukan "datang" berdasarkan range
-                    foreach ($rangeMapping as $range) {
-                        if ($randomValue >= $range['min'] && $randomValue <= $range['max']) {
-                            $dailySimulation[] = $range['datang'];
-                            break;
+                    for ($j = 0; $j < 5; $j++) {
+                        $randomValue = rand(0, 100); // Angka acak antara 0 dan 100
+                        $dailyRandomNumbers[] = $randomValue;
+
+                        // Tentukan "datang" berdasarkan range
+                        foreach ($rangeMapping as $range) {
+                            if ($randomValue >= $range['min'] && $randomValue <= $range['max']) {
+                                $dailySimulation[] = $range['datang'];
+                                break;
+                            }
                         }
                     }
+
+                    // Menyimpan angka acak dan simulasi harian
+                    $randomNumbersPerMonth[] = $dailyRandomNumbers;
+                    $simulasiPerMonth[] = $dailySimulation;
+
+                    // Menghitung APE untuk setiap simulasi per hari
+                    $dailyApe = [];
+                    foreach ($dailySimulation as $index => $sim) {
+                        $actualValue = $datangData[$index % count($datangData)]->datang; // Get 'datang' value directly
+                        $ape = abs(($sim - $actualValue) / $actualValue) * 100; // Rumus APE
+                        $dailyApe[] = round($ape, 2); // Menyimpan APE per simulasi
+                    }
+
+                    // Menyimpan APE per hari
+                    $apePerMonth[] = $dailyApe;
                 }
 
-                // Menyimpan angka acak dan simulasi harian
-                $randomNumbers[] = $dailyRandomNumbers;
-                $simulasi[] = $dailySimulation;
+                // Menghitung MAPE dan akurasi untuk bulan ini
+                $mapePerMonth = $this->calculateMape($apePerMonth);
+                $accuracyPerMonth = 100 - $mapePerMonth;
 
-                // Menghitung APE untuk setiap simulasi per hari
-                $dailyApe = [];
-                foreach ($dailySimulation as $index => $sim) {
-                    // Mengambil nilai aktual (datang)
-                    $actualValue = $datangData[$index % count($datangData)]; // Bisa disesuaikan
-                    $ape = abs(($sim - $actualValue) / $actualValue) * 100; // Rumus APE
-                    $dailyApe[] = round($ape, 2); // Menyimpan APE per simulasi
-                    $totalApe += $ape; // Menambahkan ke total APE
-                    $totalCount++; // Menambah jumlah data APE
-                }
-                $apeResults[] = $dailyApe; // Menyimpan APE per hari
-
-                // Menghitung rata-rata APE per simulasi (per hari)
-                $averageApePerSimulation[] = round(array_sum($dailyApe) / count($dailyApe), 2);
+                // Menyimpan hasil simulasi dan APE untuk bulan ini
+                $monthlyResults[$month] = [
+                    'simulasi' => $simulasiPerMonth,
+                    'ape' => $apePerMonth,
+                    'mape' => $mapePerMonth,
+                    'accuracy' => $accuracyPerMonth,
+                ];
             }
         }
 
-        // Menghitung MAPE (Mean Absolute Percentage Error)
-        $mape = $totalCount > 0 ? round($totalApe / $totalCount, 2) : 0;
+        // Handle month selection if passed in the request
+        $selectedMonth = $request->input('month', null);
+        $selectedMonthResults = [];
 
-        // Menghitung akurasi keseluruhan berdasarkan MAPE
-        $accuracy = 100 - $mape;
+        // Only populate selected month results if a month is selected and it exists
+        if ($selectedMonth && isset($monthlyResults[$selectedMonth])) {
+            $selectedMonthResults = $monthlyResults[$selectedMonth];
+        }
 
-        // Menghitung akurasi per simulasi (berdasarkan rata-rata APE per simulasi)
-        $accuracyPerSimulation = array_map(function ($avgApe) {
-            return 100 - $avgApe; // Akurasi per simulasi
-        }, $averageApePerSimulation);
+        return view('pages.monte-carlo.datang.index', compact('groupedDatasets', 'monthlyResults', 'selectedMonthResults', 'selectedMonth'));
+    }
 
-        return view('pages.monte-carlo.datang.index', compact('groupedDatasets', 'simulasi', 'randomNumbers', 'apeResults', 'averageApePerSimulation', 'accuracy', 'accuracyPerSimulation', 'mape'));
+
+    // Fungsi untuk menghitung MAPE
+    private function calculateMape($apeResults)
+    {
+        $totalApe = array_sum(array_map('array_sum', $apeResults));
+        $count = count($apeResults);
+        return ($count > 0) ? round($totalApe / $count, 2) : 0;
     }
 }
