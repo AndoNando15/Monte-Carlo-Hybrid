@@ -66,16 +66,11 @@
                                     @foreach ($selectedMonthResults['comparison'] as $index => $comparison)
                                         <tr class="text-center">
                                             <td>{{ $index + 1 }}</td>
-                                            <td>{{ !empty($comparison['predicted']) ? $comparison['predicted'] : 'Data tidak ada' }}
-                                            </td>
-                                            <td>{{ !empty($comparison['actual']) ? $comparison['actual'] : 'Data tidak ada' }}
-                                            </td>
-                                            <td>{{ !empty($comparison['difference']) ? $comparison['difference'] : 'Data tidak ada' }}
-                                            </td>
-                                            <td>{{ !empty($comparison['error']) ? $comparison['error'] : 'Data tidak ada' }}%
-                                            </td>
-                                            <td>{{ !empty($comparison['accuracy']) ? $comparison['accuracy'] : 'Data tidak ada' }}%
-                                            </td>
+                                            <td>{{ $comparison['predicted'] ?? 'Data tidak ada' }}</td>
+                                            <td>{{ $comparison['actual'] ?? 'Data tidak ada' }}</td>
+                                            <td>{{ $comparison['difference'] ?? 'Data tidak ada' }}</td>
+                                            <td>{{ $comparison['error'] ?? 'Data tidak ada' }}%</td>
+                                            <td>{{ $comparison['accuracy'] ?? 'Data tidak ada' }}%</td>
                                         </tr>
                                     @endforeach
                                 @else
@@ -85,6 +80,7 @@
                                         </td>
                                     </tr>
                                 @endif
+
                             </tbody>
                         </table>
                     </div>

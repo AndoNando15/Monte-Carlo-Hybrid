@@ -136,11 +136,9 @@ class DatangController extends Controller
             $selectedMonthResults = $monthlyResults[$selectedMonth];
         }
 
-        // Debugging: Dump data to check what we are passing to the view
-        // dd($selectedMonth, $monthlyResults, $selectedMonthResults);
-
         return view('pages.monte-carlo.datang.index', compact('groupedDatasets', 'monthlyResults', 'selectedMonthResults', 'selectedMonth'));
     }
+
 
 
     // Fungsi untuk menghitung MAPE
