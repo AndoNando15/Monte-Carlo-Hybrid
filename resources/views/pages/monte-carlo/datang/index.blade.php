@@ -70,9 +70,10 @@
                                                 <td>{{ $comparison['predicted'] ?? 'Data tidak ada' }}</td>
                                                 <td>{{ $comparison['actual'] ?? 'Data tidak ada' }}</td>
                                                 <td>{{ $comparison['difference'] ?? 'Data tidak ada' }}</td>
-                                                <td>{{ number_format($comparison['error'], 2) ?? 'Data tidak ada' }}%</td>
-                                                <td>{{ number_format($comparison['accuracy'], 2) ?? 'Data tidak ada' }}%
-                                                </td>
+                                                <td>{{ sprintf('%.2f', $comparison['error']) }}%</td>
+                                                <td>{{ sprintf('%.2f', $comparison['accuracy']) }}%</td>
+
+
                                             </tr>
                                         @endforeach
                                     @endforeach
@@ -90,8 +91,10 @@
 
                     <!-- Display MAPE and Accuracy for the Selected Month -->
                     <div class="mt-4">
-                        <h5>MAPE: {{ $selectedMonthResults['mape'] }}%</h5>
-                        <h5>Akurasi: {{ $selectedMonthResults['accuracy'] }}%</h5>
+                        <!-- Menampilkan hasil MAPE dan Akurasi dengan dua angka di belakang koma -->
+                        <h5>MAPE: {{ sprintf('%.2f', $selectedMonthResults['mape']) }}%</h5>
+                        <h5>Akurasi: {{ sprintf('%.2f', $selectedMonthResults['accuracy']) }}%</h5>
+
                     </div>
                 @elseif ($selectedMonth)
                     <p class="text-center text-muted">Tidak ada data untuk bulan ini.</p>

@@ -93,19 +93,19 @@ class DatangController extends Controller
                         $actualValue = $datangData[$index % count($datangData)]->datang;  // Mengakses nilai datang yang benar
 
                         $error = abs($sim - $actualValue);  // Menghitung error
-                        $accuracy = 100 - (($error / $actualValue) * 100);  // Menghitung akurasi
+                        $accuracy = 100 - $error;  // Akurasi dihitung dengan 100 - error
 
                         $dailyComparison[] = [
                             'predicted' => $sim,        // Nilai prediksi
                             'actual' => $actualValue,   // Nilai aktual
                             'difference' => $error,    // Selisih
-                            'error' => $error,         // Error absolut
+                            'error' => $error,         // Error absolut (tanpa pembulatan berlebihan)
                             'accuracy' => $accuracy,   // Akurasi
                         ];
 
                         // Menghitung APE
                         $ape = abs(($sim - $actualValue) / $actualValue) * 100;  // Menghitung APE
-                        $apePerMonth[] = round($ape, 2);  // Menyimpan APE per simulasi
+                        $apePerMonth[] = $ape;  // Menyimpan APE per simulasi tanpa pembulatan
                     }
 
                     // Menyimpan perbandingan per hari
@@ -135,19 +135,14 @@ class DatangController extends Controller
         if ($selectedMonth && isset($monthlyResults[$selectedMonth])) {
             $selectedMonthResults = $monthlyResults[$selectedMonth];
         }
-        // dd($selectedMonthResults); // Menampilkan seluruh data hasil perbandingan sebelum dikirim ke view.
 
         return view('pages.monte-carlo.datang.index', compact('groupedDatasets', 'monthlyResults', 'selectedMonthResults', 'selectedMonth'));
     }
 
-
-
     // Fungsi untuk menghitung MAPE
-// Fungsi untuk menghitung MAPE// Fungsi untuk menghitung MAPE
+    // Fungsi untuk menghitung MAPE
     private function calculateMape($apeResults)
     {
-        // Jika $apeResults adalah array yang berisi nilai-nilai individual
-        // kita tidak perlu menggunakan array_map
         if (is_array($apeResults)) {
             $totalApe = array_sum($apeResults); // Hanya menjumlahkan array
             $count = count($apeResults);
@@ -156,8 +151,8 @@ class DatangController extends Controller
             $count = 1;  // Cukup 1 jika hanya satu nilai
         }
 
-        return ($count > 0) ? round($totalApe / $count, 2) : 0;
+        // Mengembalikan MAPE tanpa pembulatan yang tidak perlu
+        return ($count > 0) ? $totalApe / $count : 0;
     }
-
 
 }
