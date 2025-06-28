@@ -8,9 +8,7 @@
             </div>
             <div class="card-body">
 
-
-
-                <!-- Grouped Data Table (If no month is selected) -->
+                {{-- Tabel Data Terkelompok --}}
                 <div class="table-responsive mt-4">
                     <table class="table table-bordered table-striped" id="dataTable">
                         <thead>
@@ -45,7 +43,8 @@
                         </tbody>
                     </table>
                 </div>
-                <!-- Dropdown for selecting month (Centered at the top) -->
+
+                {{-- Dropdown pilih bulan --}}
                 <div class="text-center mt-4">
                     <form method="GET" action="{{ route('monte-carlo.datang.index') }}">
                         <label for="month" class="font-weight-bold">Pilih Bulan:</label>
@@ -60,58 +59,92 @@
                         <button type="submit" class="btn btn-primary mt-2">Tampilkan</button>
                     </form>
                 </div>
-                <!-- Only Display Results for the Selected Month if a Month is Selected -->
+
+                {{-- Tabel Simulasi jika bulan dipilih --}}
                 @if ($selectedMonth && !empty($selectedMonthResults))
-                    <!-- Section for Results of the Selected Month -->
                     <section class="mt-5">
                         <h5 class="mt-4">Hasil Simulasi untuk Bulan:
                             {{ \Carbon\Carbon::parse($selectedMonth)->format('F Y') }}</h5>
 
                         <div class="table-responsive mt-4">
                             <table class="table table-bordered table-striped">
-                                <thead>
-                                    <tr class="text-center">
-                                        <th>No</th>
-                                        <th>Prediksi</th>
-                                        <th>Data Asli</th>
-                                        <th>Selisih</th>
-                                        <th>Error</th>
-                                        <th>Akurasi</th>
+                                <thead class="text-center">
+                                    <tr>
+                                        <th rowspan="2">No</th>
+                                        <th colspan="5">Angka Acak</th>
+                                        <th colspan="5">Simulasi</th>
+                                        <th colspan="5">Akurasi</th>
+                                        <th colspan="5">Absolute Percentage Error</th>
+                                        <th rowspan="2">Prediksi (Akurasi Tertinggi)</th>
+                                        <th rowspan="2">Akurasi Prediksi</th>
+                                        <th rowspan="2">Data Asli</th>
+                                    </tr>
+                                    <tr>
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <th>Acak-{{ $i }}</th>
+                                        @endfor
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <th>Simulasi-{{ $i }}</th>
+                                        @endfor
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <th>Akurasi-{{ $i }}</th>
+                                        @endfor
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <th>APE-{{ $i }}</th>
+                                        @endfor
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @if (!empty($selectedMonthResults['comparison']))
-                                        @foreach ($selectedMonthResults['comparison'] as $index => $comparisonGroup)
-                                            @foreach ($comparisonGroup as $comparison)
-                                                <tr class="text-center">
-                                                    <td>{{ $index + 1 }}</td>
-                                                    <td>{{ $comparison['predicted'] ?? 'Data tidak ada' }}</td>
-                                                    <td>{{ $comparison['actual'] ?? 'Data tidak ada' }}</td>
-                                                    <td>{{ $comparison['difference'] ?? 'Data tidak ada' }}</td>
-                                                    <td>{{ sprintf('%.2f', $comparison['error']) }}%</td>
-                                                    <td>{{ sprintf('%.2f', $comparison['accuracy']) }}%</td>
-                                                </tr>
+                                    @foreach ($selectedMonthResults['comparison'] as $index => $comparison)
+                                        <tr class="text-center">
+                                            <td>{{ $index + 1 }}</td>
+
+                                            {{-- Angka Acak --}}
+                                            @foreach ($comparison['random_numbers'] as $num)
+                                                <td>{{ $num }}</td>
                                             @endforeach
-                                        @endforeach
-                                    @else
-                                        <tr>
-                                            <td colspan="6" class="text-center text-muted">
-                                                Data tidak tersedia untuk bulan ini.
+
+                                            {{-- Simulasi --}}
+                                            @foreach ($comparison['simulations'] as $sim)
+                                                <td>{{ $sim }}</td>
+                                            @endforeach
+
+                                            {{-- Akurasi --}}
+                                            @foreach ($comparison['accuracies'] as $acc)
+                                                <td>{{ sprintf('%.2f', $acc) }}%</td>
+                                            @endforeach
+
+                                            {{-- APE --}}
+                                            @foreach ($comparison['apes'] as $ape)
+                                                <td>{{ sprintf('%.2f', $ape) }}%</td>
+                                            @endforeach
+
+                                            {{-- Prediksi Terbaik --}}
+                                            <td>{{ $selectedMonthResults['best_predictions'][$index] }}</td>
+
+                                            {{-- Akurasi prediksi terbaik --}}
+                                            <td>
+                                                {{ sprintf('%.2f', $comparison['accuracies'][$selectedMonthResults['best_simulation_index']]) }}%
                                             </td>
+
+                                            {{-- Data Asli --}}
+                                            <td>{{ $comparison['actual'] }}</td>
                                         </tr>
-                                    @endif
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
 
-                        <!-- Display MAPE and Accuracy for the Selected Month -->
+                        {{-- Ringkasan hasil --}}
                         <div class="mt-4">
-                            <h5>MAPE: {{ sprintf('%.2f', $selectedMonthResults['mape']) }}%</h5>
-                            <h5>Akurasi: {{ sprintf('%.2f', $selectedMonthResults['accuracy']) }}%</h5>
+                            <h5>MAPE:
+                                {{ sprintf('%.2f', $selectedMonthResults['mape']) }}%
+                            </h5>
+                            <h5>Akurasi Rata-rata Kolom Prediksi Terbaik:
+                                {{ sprintf('%.2f', $selectedMonthResults['best_simulation_avg_accuracy']) }}%
+                            </h5>
                         </div>
                     </section>
-                @elseif ($selectedMonth)
-                    <p class="text-center text-muted">Tidak ada data untuk bulan ini.</p>
                 @endif
 
             </div>
@@ -119,15 +152,12 @@
     </div>
 
     <script>
-        // Mengirim data dari PHP ke JavaScript
-        const monthlyResults = @json($monthlyResults); // Mengirim data $monthlyResults ke JavaScript
-        const selectedMonth = @json($selectedMonth); // Mengirim data bulan yang dipilih ke JavaScript
-        const groupedDatasets = @json($groupedDatasets); // Mengirim data grouped datasets ke JavaScript
+        const monthlyResults = @json($monthlyResults);
+        const selectedMonth = @json($selectedMonth);
+        const groupedDatasets = @json($groupedDatasets);
 
-        // Cek apakah ada data untuk bulan yang dipilih
         if (selectedMonth && monthlyResults[selectedMonth]) {
             const selectedResults = monthlyResults[selectedMonth];
-
             console.log(`Hasil Simulasi untuk Bulan: ${selectedMonth}`);
             console.log('Simulasi:', selectedResults.simulasi);
             console.log('MAPE:', selectedResults.mape);
@@ -137,8 +167,6 @@
             console.log('Data bulan yang dipilih tidak tersedia.');
         }
 
-        // Cek apakah ada grouped data untuk datang
         console.log('Grouped Datasets:', groupedDatasets);
     </script>
-
 @endsection
