@@ -8,6 +8,8 @@
             </div>
             <div class="card-body">
 
+
+
                 <!-- Grouped Data Table (If no month is selected) -->
                 <div class="table-responsive mt-4">
                     <table class="table table-bordered table-striped" id="dataTable">
@@ -43,64 +45,7 @@
                         </tbody>
                     </table>
                 </div>
-
-                <!-- Only Display Results for the Selected Month if a Month is Selected -->
-                @if ($selectedMonth && !empty($selectedMonthResults))
-                    <h5 class="mt-4">Hasil Simulasi untuk Bulan:
-                        {{ \Carbon\Carbon::parse($selectedMonth)->format('F Y') }}</h5>
-
-                    <div class="table-responsive mt-4">
-                        <table class="table table-bordered table-striped">
-                            <thead>
-                                <tr class="text-center">
-                                    <th>No</th>
-                                    <th>Prediksi</th>
-                                    <th>Data Asli</th>
-                                    <th>Selisih</th>
-                                    <th>Error</th>
-                                    <th>Akurasi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (!empty($selectedMonthResults['comparison']))
-                                    @foreach ($selectedMonthResults['comparison'] as $index => $comparisonGroup)
-                                        @foreach ($comparisonGroup as $comparison)
-                                            <tr class="text-center">
-                                                <td>{{ $index + 1 }}</td>
-                                                <td>{{ $comparison['predicted'] ?? 'Data tidak ada' }}</td>
-                                                <td>{{ $comparison['actual'] ?? 'Data tidak ada' }}</td>
-                                                <td>{{ $comparison['difference'] ?? 'Data tidak ada' }}</td>
-                                                <td>{{ sprintf('%.2f', $comparison['error']) }}%</td>
-                                                <td>{{ sprintf('%.2f', $comparison['accuracy']) }}%</td>
-
-
-                                            </tr>
-                                        @endforeach
-                                    @endforeach
-                                @else
-                                    <tr>
-                                        <td colspan="6" class="text-center text-muted">
-                                            Data tidak tersedia untuk bulan ini.
-                                        </td>
-                                    </tr>
-                                @endif
-
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Display MAPE and Accuracy for the Selected Month -->
-                    <div class="mt-4">
-                        <!-- Menampilkan hasil MAPE dan Akurasi dengan dua angka di belakang koma -->
-                        <h5>MAPE: {{ sprintf('%.2f', $selectedMonthResults['mape']) }}%</h5>
-                        <h5>Akurasi: {{ sprintf('%.2f', $selectedMonthResults['accuracy']) }}%</h5>
-
-                    </div>
-                @elseif ($selectedMonth)
-                    <p class="text-center text-muted">Tidak ada data untuk bulan ini.</p>
-                @endif
-
-                <!-- Dropdown for selecting month (Centered at the bottom) -->
+                <!-- Dropdown for selecting month (Centered at the top) -->
                 <div class="text-center mt-4">
                     <form method="GET" action="{{ route('monte-carlo.datang.index') }}">
                         <label for="month" class="font-weight-bold">Pilih Bulan:</label>
@@ -115,6 +60,59 @@
                         <button type="submit" class="btn btn-primary mt-2">Tampilkan</button>
                     </form>
                 </div>
+                <!-- Only Display Results for the Selected Month if a Month is Selected -->
+                @if ($selectedMonth && !empty($selectedMonthResults))
+                    <!-- Section for Results of the Selected Month -->
+                    <section class="mt-5">
+                        <h5 class="mt-4">Hasil Simulasi untuk Bulan:
+                            {{ \Carbon\Carbon::parse($selectedMonth)->format('F Y') }}</h5>
+
+                        <div class="table-responsive mt-4">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th>No</th>
+                                        <th>Prediksi</th>
+                                        <th>Data Asli</th>
+                                        <th>Selisih</th>
+                                        <th>Error</th>
+                                        <th>Akurasi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (!empty($selectedMonthResults['comparison']))
+                                        @foreach ($selectedMonthResults['comparison'] as $index => $comparisonGroup)
+                                            @foreach ($comparisonGroup as $comparison)
+                                                <tr class="text-center">
+                                                    <td>{{ $index + 1 }}</td>
+                                                    <td>{{ $comparison['predicted'] ?? 'Data tidak ada' }}</td>
+                                                    <td>{{ $comparison['actual'] ?? 'Data tidak ada' }}</td>
+                                                    <td>{{ $comparison['difference'] ?? 'Data tidak ada' }}</td>
+                                                    <td>{{ sprintf('%.2f', $comparison['error']) }}%</td>
+                                                    <td>{{ sprintf('%.2f', $comparison['accuracy']) }}%</td>
+                                                </tr>
+                                            @endforeach
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted">
+                                                Data tidak tersedia untuk bulan ini.
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Display MAPE and Accuracy for the Selected Month -->
+                        <div class="mt-4">
+                            <h5>MAPE: {{ sprintf('%.2f', $selectedMonthResults['mape']) }}%</h5>
+                            <h5>Akurasi: {{ sprintf('%.2f', $selectedMonthResults['accuracy']) }}%</h5>
+                        </div>
+                    </section>
+                @elseif ($selectedMonth)
+                    <p class="text-center text-muted">Tidak ada data untuk bulan ini.</p>
+                @endif
 
             </div>
         </div>
