@@ -22,6 +22,9 @@ class DatangController extends Controller
 
         // Mengecek apakah data datang ada
         if (!$datangData->isEmpty()) {
+            // Sort data datang by 'datang' to ensure it starts from 0
+            $datangData = $datangData->sortBy('datang');
+
             $frequencies = $datangData->groupBy('datang')->map(function ($group) {
                 return $group->count();
             });  // Group by 'datang' value and count the occurrences
@@ -30,11 +33,17 @@ class DatangController extends Controller
             $cumulative = 0;
 
             // Membuat range, probabilitas, dan komulatif
+            $previousMax = 0;
             foreach ($frequencies as $value => $count) {
                 $probability = $count / $total;
                 $cumulative += $probability;
-                $min = floor(($cumulative - $probability) * 100);
+
+                // Set the range based on the previous max and the current cumulative value
+                $min = $previousMax;
                 $max = (round($cumulative, 4) == 1.0000) ? 100 : ceil(($cumulative * 100) - 1);
+
+                // Update previousMax to the current max
+                $previousMax = $max + 1;
 
                 // Menambahkan data yang dihitung ke dalam collection
                 $groupedDatasets->push([
@@ -138,6 +147,7 @@ class DatangController extends Controller
 
         return view('pages.monte-carlo.datang.index', compact('groupedDatasets', 'monthlyResults', 'selectedMonthResults', 'selectedMonth'));
     }
+
 
     // Fungsi untuk menghitung MAPE
     // Fungsi untuk menghitung MAPE
