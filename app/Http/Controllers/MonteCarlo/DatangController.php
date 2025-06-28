@@ -135,6 +135,7 @@ class DatangController extends Controller
         if ($selectedMonth && isset($monthlyResults[$selectedMonth])) {
             $selectedMonthResults = $monthlyResults[$selectedMonth];
         }
+        // dd($selectedMonthResults); // Menampilkan seluruh data hasil perbandingan sebelum dikirim ke view.
 
         return view('pages.monte-carlo.datang.index', compact('groupedDatasets', 'monthlyResults', 'selectedMonthResults', 'selectedMonth'));
     }

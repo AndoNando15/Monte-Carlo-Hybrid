@@ -63,15 +63,18 @@
                             </thead>
                             <tbody>
                                 @if (!empty($selectedMonthResults['comparison']))
-                                    @foreach ($selectedMonthResults['comparison'] as $index => $comparison)
-                                        <tr class="text-center">
-                                            <td>{{ $index + 1 }}</td>
-                                            <td>{{ $comparison['predicted'] ?? 'Data tidak ada' }}</td>
-                                            <td>{{ $comparison['actual'] ?? 'Data tidak ada' }}</td>
-                                            <td>{{ $comparison['difference'] ?? 'Data tidak ada' }}</td>
-                                            <td>{{ $comparison['error'] ?? 'Data tidak ada' }}%</td>
-                                            <td>{{ $comparison['accuracy'] ?? 'Data tidak ada' }}%</td>
-                                        </tr>
+                                    @foreach ($selectedMonthResults['comparison'] as $index => $comparisonGroup)
+                                        @foreach ($comparisonGroup as $comparison)
+                                            <tr class="text-center">
+                                                <td>{{ $index + 1 }}</td>
+                                                <td>{{ $comparison['predicted'] ?? 'Data tidak ada' }}</td>
+                                                <td>{{ $comparison['actual'] ?? 'Data tidak ada' }}</td>
+                                                <td>{{ $comparison['difference'] ?? 'Data tidak ada' }}</td>
+                                                <td>{{ number_format($comparison['error'], 2) ?? 'Data tidak ada' }}%</td>
+                                                <td>{{ number_format($comparison['accuracy'], 2) ?? 'Data tidak ada' }}%
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                     @endforeach
                                 @else
                                     <tr>
