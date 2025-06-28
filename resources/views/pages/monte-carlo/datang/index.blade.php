@@ -34,8 +34,12 @@
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $data['datang'] }}</td>
                                         <td>{{ $data['frekuensi'] }}</td>
-                                        <td>{{ $data['probabilitas'] }}</td>
-                                        <td>{{ $data['komulatif'] }}</td>
+                                        <td title="Probabilitas = Frekuensi / Total Data">
+                                            {{ sprintf('%.4f', $data['probabilitas']) }}
+                                        </td> {{-- Probabilitas --}}
+                                        <td title="Komulatif = Sum(Probabilitas)">
+                                            {{ sprintf('%.4f', $data['komulatif']) }}
+                                        </td> {{-- Komulatif --}}
                                         <td>{{ $data['range'] }}</td>
                                     </tr>
                                 @endforeach
@@ -75,9 +79,6 @@
                                         <th colspan="5">Simulasi</th>
                                         <th colspan="5">Akurasi</th>
                                         <th colspan="5">Absolute Percentage Error</th>
-                                        <th rowspan="2">Prediksi (Akurasi Tertinggi)</th>
-                                        <th rowspan="2">Akurasi Prediksi</th>
-                                        <th rowspan="2">Data Asli</th>
                                     </tr>
                                     <tr>
                                         @for ($i = 1; $i <= 5; $i++)
@@ -111,24 +112,69 @@
 
                                             {{-- Akurasi --}}
                                             @foreach ($comparison['accuracies'] as $acc)
-                                                <td>{{ sprintf('%.2f', $acc) }}%</td>
+                                                <td title="Akurasi = MIN(Prediksi, Data Asli) / MAX(Prediksi, Data Asli)">
+                                                    {{ sprintf('%.2f', $acc) }}%
+                                                </td>
                                             @endforeach
 
                                             {{-- APE --}}
                                             @foreach ($comparison['apes'] as $ape)
-                                                <td>{{ sprintf('%.2f', $ape) }}%</td>
+                                                <td title="APE = (|Prediksi - Data Asli| / Data Asli) * 100">
+                                                    {{ sprintf('%.2f', $ape) }}%
+                                                </td>
                                             @endforeach
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
 
-                                            {{-- Prediksi Terbaik --}}
-                                            <td>{{ $selectedMonthResults['best_predictions'][$index] }}</td>
+                        {{-- Tabel Prediksi, Data Asli, Selisih, Error, dan Akurasi --}}
+                        <div class="table-responsive mt-4">
+                            <table class="table table-bordered table-striped text-center">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th>No</th>
+                                        <th>Prediksi</th>
+                                        <th>Data Asli</th>
+                                        <th>Selisih</th>
+                                        <th>Error</th>
+                                        <th>Akurasi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($selectedMonthResults['comparison'] as $index => $comparison)
+                                        @php
+                                            $prediksi = $selectedMonthResults['best_predictions'][$index];
+                                            $dataAsli = $comparison['actual'];
+                                            $selisih = abs($prediksi - $dataAsli);
 
-                                            {{-- Akurasi prediksi terbaik --}}
-                                            <td>
-                                                {{ sprintf('%.2f', $comparison['accuracies'][$selectedMonthResults['best_simulation_index']]) }}%
+                                            // Cek untuk menghindari pembagian dengan nol
+                                            if ($dataAsli != 0) {
+                                                $error = ($selisih / $dataAsli) * 100;
+                                                $akurasi = 100 - $error;
+
+                                                // Pastikan error tidak lebih besar dari 100%
+                                                if ($error > 100) {
+                                                    $error = 100;
+                                                    $akurasi = 0;
+                                                }
+                                            } else {
+                                                $error = 0;
+                                                $akurasi = 0;
+                                            }
+                                        @endphp
+                                        <tr class="text-center">
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>{{ $prediksi }}</td>
+                                            <td>{{ $dataAsli }}</td>
+                                            <td>{{ $selisih }}</td>
+                                            <td title="Error = (|Prediksi - Data Asli| / Data Asli) * 100">
+                                                {{ sprintf('%.2f', $error) }}%
                                             </td>
-
-                                            {{-- Data Asli --}}
-                                            <td>{{ $comparison['actual'] }}</td>
+                                            <td title="Akurasi = MIN(Prediksi, Data Asli) / MAX(Prediksi, Data Asli)">
+                                                {{ sprintf('%.2f', $akurasi) }}%
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -150,23 +196,4 @@
             </div>
         </div>
     </div>
-
-    <script>
-        const monthlyResults = @json($monthlyResults);
-        const selectedMonth = @json($selectedMonth);
-        const groupedDatasets = @json($groupedDatasets);
-
-        if (selectedMonth && monthlyResults[selectedMonth]) {
-            const selectedResults = monthlyResults[selectedMonth];
-            console.log(`Hasil Simulasi untuk Bulan: ${selectedMonth}`);
-            console.log('Simulasi:', selectedResults.simulasi);
-            console.log('MAPE:', selectedResults.mape);
-            console.log('Akurasi:', selectedResults.accuracy);
-            console.log('Perbandingan:', selectedResults.comparison);
-        } else {
-            console.log('Data bulan yang dipilih tidak tersedia.');
-        }
-
-        console.log('Grouped Datasets:', groupedDatasets);
-    </script>
 @endsection
