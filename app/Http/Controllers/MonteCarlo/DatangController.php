@@ -77,17 +77,25 @@ class DatangController extends Controller
                     $actualValue = $dayData->datang;
 
                     foreach ($dailySimulation as $sim) {
+                        // Calculate error using absolute difference between simulation and actual value
                         $error = abs($sim - $actualValue);
-                        $accuracy = 100 - $error;
 
+                        // Correct accuracy formula: MIN(predicted, actual) / MAX(predicted, actual) * 100
+                        $accuracy = min($sim, $actualValue) / max($sim, $actualValue);
+
+                        // Calculate absolute percentage error (APE)
                         $ape = ($actualValue != 0)
                             ? abs(($sim - $actualValue) / $actualValue)
                             : 0;
 
+                        // Add calculated accuracy and APE to respective arrays
                         $dailyAkurasi[] = $accuracy;
                         $dailyAPE[] = $ape;
+
+                        // Add APE to global array for monthly calculation
                         $apePerMonth[] = $ape;
                     }
+
 
                     $comparisonPerMonth[] = [
                         'random_numbers' => $dailyRandomNumbers,

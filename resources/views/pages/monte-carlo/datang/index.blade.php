@@ -117,6 +117,7 @@
                                                 </td>
                                             @endforeach
 
+
                                             {{-- APE --}}
                                             @foreach ($comparison['apes'] as $ape)
                                                 <td title="APE = (|Prediksi - Data Asli| / Data Asli) * 100">
@@ -183,12 +184,10 @@
 
                         {{-- Ringkasan hasil --}}
                         <div class="mt-4">
-                            <h5>MAPE:
-                                {{ sprintf('%.2f', $selectedMonthResults['mape']) }}%
-                            </h5>
-                            <h5>Akurasi Rata-rata Kolom Prediksi Terbaik:
-                                {{ sprintf('%.2f', $selectedMonthResults['best_simulation_avg_accuracy']) }}%
-                            </h5>
+                            <h5>MAPE: {{ sprintf('%.2f', $selectedMonthResults['mape']) }}%</h5>
+                            <h5>Accuracy: {{ sprintf('%.2f', $selectedMonthResults['accuracy']) }}%</h5>
+
+
                         </div>
                     </section>
                 @endif
