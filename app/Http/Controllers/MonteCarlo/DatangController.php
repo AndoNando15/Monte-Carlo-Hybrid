@@ -1,11 +1,10 @@
 <?php
+
 namespace App\Http\Controllers\MonteCarlo;
 
 use App\Http\Controllers\Controller;
 use App\Models\Dataset;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Carbon\Carbon;
 
 class DatangController extends Controller
@@ -19,6 +18,7 @@ class DatangController extends Controller
         $randomNumbers = []; // Menyimpan angka acak
         $apeResults = []; // Menyimpan APE per simulasi
         $monthlyResults = [];
+        $comparisonResults = []; // For storing comparison results
 
         // Mengecek apakah data datang ada
         if (!$datangData->isEmpty()) {
@@ -62,22 +62,22 @@ class DatangController extends Controller
                 $simulasiPerMonth = [];
                 $randomNumbersPerMonth = [];
                 $apePerMonth = [];
+                $comparisonPerMonth = []; // Initialize comparison array
 
                 // Simulasi untuk setiap hari dalam bulan tersebut
                 foreach ($dailyData as $dayData) {
                     $dailySimulation = [];
                     $dailyRandomNumbers = [];
 
-                    for ($j = 0; $j < 5; $j++) {
-                        $randomValue = rand(0, 100); // Angka acak antara 0 dan 100
-                        $dailyRandomNumbers[] = $randomValue;
+                    // Generate 1 random value for the simulation (instead of 5 random values)
+                    $randomValue = rand(0, 100); // Angka acak antara 0 dan 100
+                    $dailyRandomNumbers[] = $randomValue;
 
-                        // Tentukan "datang" berdasarkan range
-                        foreach ($rangeMapping as $range) {
-                            if ($randomValue >= $range['min'] && $randomValue <= $range['max']) {
-                                $dailySimulation[] = $range['datang'];
-                                break;
-                            }
+                    // Tentukan "datang" berdasarkan range
+                    foreach ($rangeMapping as $range) {
+                        if ($randomValue >= $range['min'] && $randomValue <= $range['max']) {
+                            $dailySimulation[] = $range['datang'];
+                            break;
                         }
                     }
 
@@ -85,16 +85,31 @@ class DatangController extends Controller
                     $randomNumbersPerMonth[] = $dailyRandomNumbers;
                     $simulasiPerMonth[] = $dailySimulation;
 
-                    // Menghitung APE untuk setiap simulasi per hari
-                    $dailyApe = [];
+                    // Menghitung APE dan perbandingan untuk setiap simulasi per hari
+                    $dailyComparison = [];  // Initialize comparison array
+
+                    // Only 1 simulation per day
                     foreach ($dailySimulation as $index => $sim) {
-                        $actualValue = $datangData[$index % count($datangData)]->datang; // Get 'datang' value directly
-                        $ape = abs(($sim - $actualValue) / $actualValue) * 100; // Rumus APE
-                        $dailyApe[] = round($ape, 2); // Menyimpan APE per simulasi
+                        $actualValue = $datangData[$index % count($datangData)]->datang;  // Mengakses nilai datang yang benar
+
+                        $error = abs($sim - $actualValue);  // Menghitung error
+                        $accuracy = 100 - (($error / $actualValue) * 100);  // Menghitung akurasi
+
+                        $dailyComparison[] = [
+                            'predicted' => $sim,        // Nilai prediksi
+                            'actual' => $actualValue,   // Nilai aktual
+                            'difference' => $error,    // Selisih
+                            'error' => $error,         // Error absolut
+                            'accuracy' => $accuracy,   // Akurasi
+                        ];
+
+                        // Menghitung APE
+                        $ape = abs(($sim - $actualValue) / $actualValue) * 100;  // Menghitung APE
+                        $apePerMonth[] = round($ape, 2);  // Menyimpan APE per simulasi
                     }
 
-                    // Menyimpan APE per hari
-                    $apePerMonth[] = $dailyApe;
+                    // Menyimpan perbandingan per hari
+                    $comparisonPerMonth[] = $dailyComparison;
                 }
 
                 // Menghitung MAPE dan akurasi untuk bulan ini
@@ -107,6 +122,7 @@ class DatangController extends Controller
                     'ape' => $apePerMonth,
                     'mape' => $mapePerMonth,
                     'accuracy' => $accuracyPerMonth,
+                    'comparison' => $comparisonPerMonth, // Store comparison data
                 ];
             }
         }
@@ -120,15 +136,29 @@ class DatangController extends Controller
             $selectedMonthResults = $monthlyResults[$selectedMonth];
         }
 
+        // Debugging: Dump data to check what we are passing to the view
+        // dd($selectedMonth, $monthlyResults, $selectedMonthResults);
+
         return view('pages.monte-carlo.datang.index', compact('groupedDatasets', 'monthlyResults', 'selectedMonthResults', 'selectedMonth'));
     }
 
 
     // Fungsi untuk menghitung MAPE
+// Fungsi untuk menghitung MAPE// Fungsi untuk menghitung MAPE
     private function calculateMape($apeResults)
     {
-        $totalApe = array_sum(array_map('array_sum', $apeResults));
-        $count = count($apeResults);
+        // Jika $apeResults adalah array yang berisi nilai-nilai individual
+        // kita tidak perlu menggunakan array_map
+        if (is_array($apeResults)) {
+            $totalApe = array_sum($apeResults); // Hanya menjumlahkan array
+            $count = count($apeResults);
+        } else {
+            $totalApe = $apeResults;
+            $count = 1;  // Cukup 1 jika hanya satu nilai
+        }
+
         return ($count > 0) ? round($totalApe / $count, 2) : 0;
     }
+
+
 }

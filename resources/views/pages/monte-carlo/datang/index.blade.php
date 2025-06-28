@@ -44,7 +44,7 @@
                     </table>
                 </div>
 
-                <!-- Display Results for the Selected Month (Only if a month is selected) -->
+                <!-- Only Display Results for the Selected Month if a Month is Selected -->
                 @if ($selectedMonth && !empty($selectedMonthResults))
                     <h5 class="mt-4">Hasil Simulasi untuk Bulan:
                         {{ \Carbon\Carbon::parse($selectedMonth)->format('F Y') }}</h5>
@@ -54,22 +54,37 @@
                             <thead>
                                 <tr class="text-center">
                                     <th>No</th>
-                                    <th>Simulasi Ke-1</th>
-                                    <th>Simulasi Ke-2</th>
-                                    <th>Simulasi Ke-3</th>
-                                    <th>Simulasi Ke-4</th>
-                                    <th>Simulasi Ke-5</th>
+                                    <th>Prediksi</th>
+                                    <th>Data Asli</th>
+                                    <th>Selisih</th>
+                                    <th>Error</th>
+                                    <th>Akurasi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($selectedMonthResults['simulasi'] as $index => $simulation)
-                                    <tr class="text-center">
-                                        <td>{{ $index + 1 }}</td>
-                                        @foreach ($simulation as $sim)
-                                            <td>{{ $sim }}</td>
-                                        @endforeach
+                                @if (!empty($selectedMonthResults['comparison']))
+                                    @foreach ($selectedMonthResults['comparison'] as $index => $comparison)
+                                        <tr class="text-center">
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>{{ !empty($comparison['predicted']) ? $comparison['predicted'] : 'Data tidak ada' }}
+                                            </td>
+                                            <td>{{ !empty($comparison['actual']) ? $comparison['actual'] : 'Data tidak ada' }}
+                                            </td>
+                                            <td>{{ !empty($comparison['difference']) ? $comparison['difference'] : 'Data tidak ada' }}
+                                            </td>
+                                            <td>{{ !empty($comparison['error']) ? $comparison['error'] : 'Data tidak ada' }}%
+                                            </td>
+                                            <td>{{ !empty($comparison['accuracy']) ? $comparison['accuracy'] : 'Data tidak ada' }}%
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @else
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">
+                                            Data tidak tersedia untuk bulan ini.
+                                        </td>
                                     </tr>
-                                @endforeach
+                                @endif
                             </tbody>
                         </table>
                     </div>
@@ -102,4 +117,28 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Mengirim data dari PHP ke JavaScript
+        const monthlyResults = @json($monthlyResults); // Mengirim data $monthlyResults ke JavaScript
+        const selectedMonth = @json($selectedMonth); // Mengirim data bulan yang dipilih ke JavaScript
+        const groupedDatasets = @json($groupedDatasets); // Mengirim data grouped datasets ke JavaScript
+
+        // Cek apakah ada data untuk bulan yang dipilih
+        if (selectedMonth && monthlyResults[selectedMonth]) {
+            const selectedResults = monthlyResults[selectedMonth];
+
+            console.log(`Hasil Simulasi untuk Bulan: ${selectedMonth}`);
+            console.log('Simulasi:', selectedResults.simulasi);
+            console.log('MAPE:', selectedResults.mape);
+            console.log('Akurasi:', selectedResults.accuracy);
+            console.log('Perbandingan:', selectedResults.comparison);
+        } else {
+            console.log('Data bulan yang dipilih tidak tersedia.');
+        }
+
+        // Cek apakah ada grouped data untuk datang
+        console.log('Grouped Datasets:', groupedDatasets);
+    </script>
+
 @endsection
