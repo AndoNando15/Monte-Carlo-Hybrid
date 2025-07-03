@@ -96,7 +96,6 @@ class DatangController extends Controller
                         $apePerMonth[] = $ape;
                     }
 
-
                     $comparisonPerMonth[] = [
                         'random_numbers' => $dailyRandomNumbers,
                         'simulations' => $dailySimulation,
