@@ -74,18 +74,13 @@
                     <button id="lihatProses" class="btn btn-outline-success mb-2">Lihat Proses</button>
                 </div>
 
-
-
-
-
-
                 {{-- Process Buttons --}}
                 <div class="text-center mt-4" id="processButtons" style="display:none;">
                     <button id="toggleRandomNumbers" class="btn btn-outline-primary mb-2">Angka Acak</button>
-                    <button id="toggleSimulasi" class="btn btn-outline-secondary mb-2">Simulasi</button>
-                    <button id="toggleAkurasi" class="btn btn-outline-info mb-2">Akurasi</button>
-                    <button id="toggleApe" class="btn btn-outline-warning mb-2">APE</button>
-                    <button id="showAll" class="btn btn-outline-danger mb-2">Show All</button>
+                    <button id="toggleSimulasi" class="btn btn-outline-primary mb-2">Simulasi</button>
+                    <button id="toggleAkurasi" class="btn btn-outline-primary mb-2">Akurasi</button>
+                    <button id="toggleApe" class="btn btn-outline-primary mb-2">APE</button>
+                    <button id="showAll" class="btn btn-outline-primary mb-2">Show All</button>
                 </div>
 
                 {{-- Angka Acak Table --}}
@@ -234,7 +229,6 @@
                         </tbody>
                     </table>
                 </div>
-
                 {{-- Always Visible Akurasi Perbandingan APE Section --}}
                 <h1 class="text-center mb-4" style="font-size: 2rem; font-weight: bold; color: #4CAF50;">Akurasi
                     Perbandingan APE</h1>
@@ -328,6 +322,7 @@
             // Lihat Proses button to show other buttons
             $("#lihatProses").click(function() {
                 $("#processButtons").toggle();
+                hideAllTables();
             });
 
             // Toggle Angka Acak Table
