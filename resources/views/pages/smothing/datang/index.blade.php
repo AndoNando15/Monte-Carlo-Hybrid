@@ -68,7 +68,7 @@
                                     <!-- LEVEL At -->
                                     <td>
                                         @if (!$isDesember)
-                                            {{ $data->level_at !== null ? number_format($data->level_at, 2) : '-' }}
+                                            {{ $data->level_at !== null ? number_format($data->level_at, 4) : '-' }}
                                         @else
                                             -
                                         @endif
@@ -186,7 +186,7 @@
                                     {{ $total > 0 ? number_format(($sumAkurasi / $total) * 100, 2) . '%' : '0%' }}
                                 </td>
                                 <td>
-                                    {{ $total > 0 ? number_format($sumAPE / $total, 2) : '0.00' }}
+                                    {{ $total > 0 ? number_format(($sumAPE / $total) * 100, 2) . '%' : '0.00' }}
                                 </td>
                             </tr>
                         </tfoot>

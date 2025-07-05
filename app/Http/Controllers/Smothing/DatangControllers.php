@@ -79,12 +79,22 @@ class DatangControllers extends Controller
             if ($index < 20) {
                 $data->level_at = $average;
             } else {
-                $alpha = 0.1;
+                $alpha = 0.14527154135641;
                 $levelPrev = $previousData->level_at ?? 0;
                 $trendPrev = $previousData->trend_t ?? 0;
-                $seasonalPrev = $previousData->seasonal_st ?? 1;
-                $data->level_at = $alpha * ($data->datang / $seasonalPrev) + (1 - $alpha) * ($levelPrev + $trendPrev);
+
+                // Ambil seasonal dari data indeks tetap 0-19
+                $seasonalFixedIndex = $datasets_filtered->take(20)->pluck('seasonal_st')->values();
+                $seasonalIndex = ($index - 20) % 20;
+                $seasonalFromFixed = $seasonalFixedIndex[$seasonalIndex] ?? 1;
+
+                if ($seasonalFromFixed != 0) {
+                    $data->level_at = $alpha * ($data->datang / $seasonalFromFixed) + (1 - $alpha) * ($levelPrev + $trendPrev);
+                } else {
+                    $data->level_at = $levelPrev + $trendPrev;
+                }
             }
+
 
             if ($index > 19 && $month >= 2 && $month <= 11) {
                 $beta = 0.05;
@@ -108,12 +118,17 @@ class DatangControllers extends Controller
 
             if ($index >= 20) {
                 $seasonal_base = $datasets_filtered->take(20)->values();
-                $level = $data->level_at ?? 0;
-                $trend = $data->trend_t ?? 0;
+                $previousData = $datasets_filtered[$index - 1] ?? null;
+
+                $levelPrev = $previousData->level_at ?? 0;
+                $trendPrev = $previousData->trend_t ?? 0;
+
                 $seasonalIndex = ($index - 20) % 20;
                 $seasonal = $seasonal_base[$seasonalIndex]->seasonal_st ?? 1;
-                $data->forecast = ($level + $trend) * $seasonal;
+
+                $data->forecast = ($levelPrev + 1 * $trendPrev) * $seasonal;
             }
+
 
             $actual = $data->datang ?? 0;
             $forecast = $data->forecast ?? null;
