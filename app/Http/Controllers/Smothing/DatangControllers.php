@@ -62,7 +62,7 @@ class DatangControllers extends Controller
             return $item['(M2-M1)/20'];
         });
 
-        // === LOOP PERTAMA: JANUARI–NOVEMBER ===
+        // === LOOP 1: JANUARI–NOVEMBER
         foreach ($datasets_filtered as $index => $data) {
             $carbonDate = Carbon::parse($data->tanggal);
             $month = $carbonDate->month;
@@ -72,7 +72,6 @@ class DatangControllers extends Controller
             if ($month == 12)
                 continue;
 
-            // Tanggal 28 Jan pakai initial trend
             if ($dateString === '2023-01-28') {
                 $data->trend_t = $averageInitialTrend;
             }
@@ -126,16 +125,19 @@ class DatangControllers extends Controller
                 $data->absolute_percentage_error = abs($data->error) / $actual;
             }
 
-            // Format tanggal
-            $data->tanggal_iso = Carbon::parse($data->tanggal)->format('Y-m-d');
+            $data->tanggal_iso = $carbonDate->format('Y-m-d');
         }
 
-        // === Ambil nilai trend terakhir bulan November
+        // === Ambil nilai level dan trend terakhir November
         $novemberLastData = $datasets_filtered->filter(fn($d) => Carbon::parse($d->tanggal)->month === 11)->last();
-        $trendNovemberLast = $novemberLastData ? (float) $novemberLastData->trend_t : 0;
-        Log::info("📌 Trend Tt akhir November: $trendNovemberLast");
+        $levelNovemberLast = $novemberLastData->level_at ?? 0;
+        $trendNovemberLast = (float) $novemberLastData->trend_t ?? 0;
+        $seasonal_november = $datasets_filtered
+            ->filter(fn($d) => Carbon::parse($d->tanggal)->month === 11)
+            ->values()
+            ->take(20);
 
-        // === LOOP KEDUA: DESEMBER
+        // === LOOP 2: DESEMBER (forecast + error, hide kolom tertentu)
         $desemberUrutan = 0;
         foreach ($datasets_filtered as $index => $data) {
             $carbonDate = Carbon::parse($data->tanggal);
@@ -143,13 +145,21 @@ class DatangControllers extends Controller
                 continue;
 
             $desemberUrutan++;
-            $data->trend_t = $trendNovemberLast * $desemberUrutan;
-            Log::info("📈 Desember ke-$desemberUrutan | trend_t = $data->trend_t");
+            $seasonalIndex = ($desemberUrutan - 1) % $seasonal_november->count();
+            $seasonal = $seasonal_november[$seasonalIndex]->seasonal_st ?? 1;
 
-            $data->level_at = null;
-            $data->seasonal_st = null;
-            $data->forecast = null;
-            $data->error = null;
+            $data->trend_t = $trendNovemberLast * $desemberUrutan;
+            $data->forecast = ($levelNovemberLast + $desemberUrutan * $trendNovemberLast) * $seasonal;
+            $data->level_at = null; // disembunyikan di view
+            $data->seasonal_st = null; // disembunyikan di view
+
+            // Hitung error hanya 'error' saja
+            $actual = $data->datang ?? 0;
+            if (!is_null($data->forecast) && $actual != 0) {
+                $data->error = $actual - $data->forecast;
+            }
+
+            // Hilangkan kolom lainnya di tampilan
             $data->absolute_error = null;
             $data->squared_error = null;
             $data->absolute_percentage_error = null;
@@ -157,7 +167,7 @@ class DatangControllers extends Controller
             $data->tanggal_iso = $carbonDate->format('Y-m-d');
         }
 
-        // === Untuk tampilan Blade
+        // === Format tampil ke Blade
         foreach ($datasets_filtered as $data) {
             $carbon = Carbon::parse($data->tanggal)->locale('id');
             $data->tanggal = $carbon->isoFormat('D MMMM YYYY');
@@ -173,6 +183,8 @@ class DatangControllers extends Controller
                     'tanggal' => $d->tanggal_iso,
                     'datang' => $d->datang,
                     'trend_t' => $d->trend_t,
+                    'forecast' => $d->forecast,
+                    'error' => $d->error,
                 ];
             });
 
