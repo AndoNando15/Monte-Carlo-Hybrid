@@ -141,6 +141,22 @@ class DatangControllers extends Controller
             }
         }
 
+        foreach ($datasets_filtered as $data) {
+            $actual = $data->datang ?? 0;
+            $forecast = $data->forecast ?? null;
+
+            if (!is_null($forecast) && $actual != 0) {
+                $data->error = $actual - $forecast;
+                $data->absolute_error = abs($data->error);
+                $data->squared_error = pow($data->error, 2);
+                $data->absolute_percentage_error = abs($data->error) / $actual;
+            } else {
+                $data->error = null;
+                $data->absolute_error = null;
+                $data->squared_error = null;
+                $data->absolute_percentage_error = null;
+            }
+        }
 
 
         // Format tanggal & hari

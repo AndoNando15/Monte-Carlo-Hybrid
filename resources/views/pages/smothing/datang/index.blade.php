@@ -51,6 +51,12 @@
                                 <th>TREND Tt</th>
                                 <th>SEASONAL St(Musiman)</th>
                                 <th>FORECAST</th>
+                                <th>FORECAST</th>
+                                <th>ERROR</th>
+                                <th>ABSOLUTE ERROR</th>
+                                <th>SQUARED ERROR</th>
+                                <th>ABSOLUTE % ERROR</th>
+
 
                             </tr>
                         </thead>
@@ -64,6 +70,14 @@
                                     <td>{{ $data->trend_t ? number_format($data->trend_t, 4) : 0 }}</td>
                                     <td>{{ $data->seasonal_st ? number_format($data->seasonal_st, 4) : 0 }}</td>
                                     <td>{{ number_format($data->forecast ?? 0, 4) }}</td>
+                                    <td>{{ $data->forecast !== null ? number_format($data->forecast, 4) : '-' }}</td>
+                                    <td>{{ $data->error !== null ? number_format($data->error, 4) : '-' }}</td>
+                                    <td>{{ $data->absolute_error !== null ? number_format($data->absolute_error, 4) : '-' }}
+                                    </td>
+                                    <td>{{ $data->squared_error !== null ? number_format($data->squared_error, 4) : '-' }}
+                                    </td>
+                                    <td>{{ $data->absolute_percentage_error !== null ? number_format($data->absolute_percentage_error * 100, 2) . '%' : '-' }}
+                                    </td>
 
                                 </tr>
                             @endforeach
