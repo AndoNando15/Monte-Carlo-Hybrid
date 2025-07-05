@@ -67,9 +67,9 @@
                                     <td>{{ $data->tanggal }}</td>
                                     <td>{{ $data->datang }}</td>
                                     <td>{{ $data->level_at ? number_format($data->level_at, 2) : 0 }}</td>
-                                    <td>{{ $data->trend_t ? number_format($data->trend_t, 4) : 0 }}</td>
-                                    <td>{{ $data->seasonal_st ? number_format($data->seasonal_st, 4) : 0 }}</td>
-                                    <td>{{ number_format($data->forecast ?? 0, 4) }}</td>
+                                    <td>{{ $data->level_at !== null ? number_format($data->level_at, 2) : '-' }}</td>
+                                    <td>{{ $data->trend_t !== null ? number_format($data->trend_t, 4) : '-' }}</td>
+                                    <td>{{ $data->seasonal_st !== null ? number_format($data->seasonal_st, 4) : '-' }}</td>
                                     <td>{{ $data->forecast !== null ? number_format($data->forecast, 4) : '-' }}</td>
                                     <td>{{ $data->error !== null ? number_format($data->error, 4) : '-' }}</td>
                                     <td>{{ $data->absolute_error !== null ? number_format($data->absolute_error, 4) : '-' }}
