@@ -70,26 +70,31 @@ class DatangControllers extends Controller
 
         // Hitung LEVEL At
         foreach ($datasets_filtered as $index => $data) {
+            $currentMonth = Carbon::parse($data->tanggal)->month;
+
             if ($index < 20) {
                 $data->level_at = $average;
-            } else {
+            } elseif ($currentMonth <= 11) {
                 $previousData = $datasets_filtered[$index - 1] ?? null;
 
                 $alpha = 0.1;
                 $levelAtPrev = $previousData->level_at ?? 0;
                 $trendPrev = $previousData->trend_t ?? 0;
-                $seasonalPrev = $previousData->seasonal_st ?? 1; // cegah divide by zero
+                $seasonalPrev = $previousData->seasonal_st ?? 1;
 
                 $data->level_at = $alpha * ($data->datang / $seasonalPrev) + (1 - $alpha) * ($levelAtPrev + $trendPrev);
+            } else {
+                $data->level_at = 0;
             }
         }
 
         // Hitung TREND Tt
         foreach ($datasets_filtered as $index => $data) {
+            $currentMonth = Carbon::parse($data->tanggal)->month;
+
             if ($index === 19) {
-                // Baris ke-20 → isi TREND dari rata-rata initial trend
                 $data->trend_t = $averageInitialTrend;
-            } elseif ($index > 19) {
+            } elseif ($index > 19 && $currentMonth <= 11) {
                 $previousData = $datasets_filtered[$index - 1] ?? null;
 
                 $beta = 0.05;
@@ -99,19 +104,19 @@ class DatangControllers extends Controller
 
                 $data->trend_t = $beta * ($levelNow - $levelPrev) + (1 - $beta) * $trendPrev;
             } else {
-                $data->trend_t = 0; // untuk 0-18
+                $data->trend_t = 0;
             }
         }
 
         // Hitung SEASONAL St
         foreach ($datasets_filtered as $index => $data) {
+            $currentMonth = Carbon::parse($data->tanggal)->month;
+
             if ($index < 20) {
-                // 20 data pertama: rumus awal
                 $data->seasonal_st = ($data->datang > 0)
-                    ? $data->datang / $data->level_at
+                    ? $data->level_at / $data->datang
                     : 0;
-            } else {
-                // Data setelah 20 → gunakan rumus smoothing
+            } elseif ($currentMonth <= 11) {
                 $gamma = 0.1;
                 $prevSeasonal = $datasets_filtered[$index - 1]->seasonal_st ?? 1;
                 $levelAtNow = $data->level_at ?? 1;
@@ -120,27 +125,32 @@ class DatangControllers extends Controller
                 $data->seasonal_st = ($levelAtNow != 0)
                     ? $gamma * ($datangNow / $levelAtNow) + (1 - $gamma) * $prevSeasonal
                     : $prevSeasonal;
+            } else {
+                $data->seasonal_st = 0;
             }
         }
-        $secondMonth = Carbon::parse($datasets_filtered[20]->tanggal)->month; // pastikan data ke-21 mulai dari bulan ke-2
 
-        $seasonal_base = $datasets_filtered->take(20)->values(); // ambil St dari bulan pertama
+        // Ambil seasonal dasar dari bulan pertama
+        $seasonal_base = $datasets_filtered->take(20)->values();
 
+        // Hitung FORECAST
         foreach ($datasets_filtered as $index => $data) {
-            if ($index >= 20) {
+            $currentMonth = Carbon::parse($data->tanggal)->month;
+
+            if ($index >= 20 && $currentMonth <= 11) {
                 $level = $data->level_at ?? 0;
                 $trend = $data->trend_t ?? 0;
 
-                // Ambil seasonal berdasarkan pola musiman awal (index sejajar dengan baris pertama)
                 $seasonalIndex = ($index - 20) % 20;
                 $seasonal = $seasonal_base[$seasonalIndex]->seasonal_st ?? 1;
 
                 $data->forecast = ($level + $trend) * $seasonal;
             } else {
-                $data->forecast = null;
+                $data->forecast = 0;
             }
         }
 
+        // Hitung ERROR & evaluasi akurasi
         foreach ($datasets_filtered as $data) {
             $actual = $data->datang ?? 0;
             $forecast = $data->forecast ?? null;
@@ -151,13 +161,12 @@ class DatangControllers extends Controller
                 $data->squared_error = pow($data->error, 2);
                 $data->absolute_percentage_error = abs($data->error) / $actual;
             } else {
-                $data->error = null;
-                $data->absolute_error = null;
-                $data->squared_error = null;
-                $data->absolute_percentage_error = null;
+                $data->error = 0;
+                $data->absolute_error = 0;
+                $data->squared_error = 0;
+                $data->absolute_percentage_error = 0;
             }
         }
-
 
         // Format tanggal & hari
         foreach ($datasets_filtered as $dataset) {
@@ -167,7 +176,7 @@ class DatangControllers extends Controller
         }
 
         // Rata-rata LEVEL At untuk 20 data pertama
-        $averageLevelAt = $datasets_filtered->take(20)->avg('level_at');
+        $averageLevelAt = $first_20_data->avg('level_at');
 
         return view('pages.smothing.datang.index', compact(
             'datasets_filtered',
