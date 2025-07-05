@@ -34,8 +34,14 @@ class DatangControllers extends Controller
         $lastDateFirstMonth = $datasets_first_month->last()->tanggal;
 
         // Menyimpan LEVEL At hanya pada tanggal terakhir bulan pertama
+        $levelAt = null; // Nilai LEVEL At akan dihitung di sini
         foreach ($datasets_filtered as $data) {
-            $data->level_at = (Carbon::parse($data->tanggal)->eq(Carbon::parse($lastDateFirstMonth))) ? $average : null;
+            // LEVEL At diisi dengan nilai rata-rata bulan pertama pada semua baris bulan pertama
+            if (Carbon::parse($data->tanggal)->month == $firstMonth) {
+                $data->level_at = $average;
+            } else {
+                $data->level_at = 0;  // Kolom LEVEL At diisi 0 untuk data selain bulan pertama
+            }
         }
 
         // Perhitungan Initial Trend untuk 20 data pertama
@@ -57,6 +63,25 @@ class DatangControllers extends Controller
 
         // Rata-rata dari kolom (M2-M1)/20
         $averageInitialTrend = array_sum(array_column($initialTrendData, '(M2-M1)/20')) / count($initialTrendData);
+
+        // Menambahkan TREND Tt pada tanggal terakhir bulan pertama
+        foreach ($datasets_filtered as $data) {
+            if (Carbon::parse($data->tanggal)->eq(Carbon::parse($lastDateFirstMonth))) {
+                $data->trend_t = $averageInitialTrend;
+            } else {
+                $data->trend_t = 0;  // Kolom TREND Tt diisi 0 selain pada tanggal terakhir bulan pertama
+            }
+        }
+
+        // Menambahkan kolom SEASONAL St(Musiman)
+        foreach ($datasets_filtered as $data) {
+            // SEASONAL St(Musiman) dihitung dengan rumus LEVEL At / Datang
+            if ($data->level_at && $data->datang != 0) {
+                $data->seasonal_st = $data->level_at / $data->datang;
+            } else {
+                $data->seasonal_st = 0; // Jika tidak ada LEVEL At atau Datang = 0, SEASONAL St(Musiman) diset ke 0
+            }
+        }
 
         // Kirim data ke view
         return view('pages.smothing.datang.index', compact('datasets_filtered', 'initialTrendData', 'averageInitialTrend'));

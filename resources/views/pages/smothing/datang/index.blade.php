@@ -43,6 +43,8 @@
                                 <th>Tanggal</th>
                                 <th>Datang</th>
                                 <th>LEVEL At (Pemulusan)</th>
+                                <th>TREND Tt</th>
+                                <th>SEASONAL St(Musiman)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -52,11 +54,13 @@
                                     <td>{{ $data->tanggal }}</td>
                                     <td>{{ $data->datang }}</td>
                                     <td>
-                                        @if ($data->level_at)
-                                            {{ number_format($data->level_at, 2) }}
-                                        @else
-                                            -
-                                        @endif
+                                        {{ $data->level_at ? number_format($data->level_at, 2) : 0 }}
+                                    </td>
+                                    <td>
+                                        {{ $data->trend_t ? number_format($data->trend_t, 4) : 0 }}
+                                    </td>
+                                    <td>
+                                        {{ $data->seasonal_st ? number_format($data->seasonal_st, 4) : 0 }}
                                     </td>
                                 </tr>
                             @endforeach
