@@ -14,7 +14,7 @@ class DatangControllers extends Controller
         // Ambil semua data urut berdasarkan tanggal
         $datasets = Dataset::orderBy('tanggal')->get();
 
-        // Ambil 20 data pertama sebagai basis LEVEL At awal
+        // Ambil maksimal 20 data per bulan, lalu urutkan berdasarkan tanggal
         $datasets_filtered = $datasets
             ->groupBy(function ($data) {
                 return Carbon::parse($data->tanggal)->format('Y-m');
@@ -25,11 +25,11 @@ class DatangControllers extends Controller
             ->sortBy('tanggal')
             ->values();
 
-        // Ambil 20 data pertama untuk perhitungan rata-rata awal
+        // Ambil 20 data pertama untuk perhitungan rata-rata awal LEVEL At
         $first_20_data = $datasets_filtered->take(20);
         $average = $first_20_data->avg('datang');
 
-        // Cari initial trend dari dua bulan pertama (optional, jika tetap ingin ditampilkan)
+        // Cari initial trend dari dua bulan pertama
         $firstMonth = Carbon::parse($datasets->first()->tanggal)->month;
         $secondMonth = $firstMonth + 1;
 
@@ -76,36 +76,62 @@ class DatangControllers extends Controller
                 $previousData = $datasets_filtered[$index - 1] ?? null;
 
                 $alpha = 0.1;
-                $levelAtPrev = $previousData ? $previousData->level_at : 0;
-                $trend = $previousData ? $previousData->trend_t : 0;
-                $seasonal = $previousData ? $previousData->seasonal_st : 0;
+                $levelAtPrev = $previousData->level_at ?? 0;
+                $trendPrev = $previousData->trend_t ?? 0;
+                $seasonalPrev = $previousData->seasonal_st ?? 1; // cegah divide by zero
 
-                $data->level_at = $seasonal != 0
-                    ? $alpha * ($data->datang / $seasonal) + (1 - $alpha) * ($levelAtPrev + $trend)
-                    : 0;
+                $data->level_at = $alpha * ($data->datang / $seasonalPrev) + (1 - $alpha) * ($levelAtPrev + $trendPrev);
             }
         }
 
-        // Tentukan TREND Tt hanya untuk data ke-20 (index 19)
+        // Hitung TREND Tt
         foreach ($datasets_filtered as $index => $data) {
-            $data->trend_t = ($index === 19) ? $averageInitialTrend : 0;
+            if ($index === 19) {
+                // Baris ke-20 → isi TREND dari rata-rata initial trend
+                $data->trend_t = $averageInitialTrend;
+            } elseif ($index > 19) {
+                $previousData = $datasets_filtered[$index - 1] ?? null;
+
+                $beta = 0.05;
+                $levelNow = $data->level_at ?? 0;
+                $levelPrev = $previousData->level_at ?? 0;
+                $trendPrev = $previousData->trend_t ?? 0;
+
+                $data->trend_t = $beta * ($levelNow - $levelPrev) + (1 - $beta) * $trendPrev;
+            } else {
+                $data->trend_t = 0; // untuk 0-18
+            }
         }
 
         // Hitung SEASONAL St
-        foreach ($datasets_filtered as $data) {
-            $data->seasonal_st = ($data->level_at && $data->datang > 0)
-                ? $data->level_at / $data->datang
-                : 0;
+        foreach ($datasets_filtered as $index => $data) {
+            if ($index < 20) {
+                // 20 data pertama: rumus awal
+                $data->seasonal_st = ($data->datang > 0)
+                    ? $data->datang / $data->level_at
+                    : 0;
+            } else {
+                // Data setelah 20 → gunakan rumus smoothing
+                $gamma = 0.1;
+                $prevSeasonal = $datasets_filtered[$index - 1]->seasonal_st ?? 1;
+                $levelAtNow = $data->level_at ?? 1;
+                $datangNow = $data->datang ?? 1;
+
+                $data->seasonal_st = ($levelAtNow != 0)
+                    ? $gamma * ($datangNow / $levelAtNow) + (1 - $gamma) * $prevSeasonal
+                    : $prevSeasonal;
+            }
         }
 
-        // Format tanggal
+
+        // Format tanggal & hari
         foreach ($datasets_filtered as $dataset) {
             $carbonDate = Carbon::parse($dataset->tanggal)->locale('id');
             $dataset->tanggal = $carbonDate->isoFormat('D MMMM YYYY');
             $dataset->hari = $carbonDate->isoFormat('dddd');
         }
 
-        // Hitung rata-rata LEVEL At dari 20 data pertama
+        // Rata-rata LEVEL At untuk 20 data pertama
         $averageLevelAt = $datasets_filtered->take(20)->avg('level_at');
 
         return view('pages.smothing.datang.index', compact(
