@@ -17,8 +17,7 @@ class DatangController extends Controller
         $monthlyResults = [];
 
         if (!$datangData->isEmpty()) {
-            $datangData = $datangData->sortBy('datang');
-
+            // Do not sort $datangData to maintain original order
             $frequencies = $datangData->groupBy('datang')->map(fn($group) => $group->count());
 
             $total = $frequencies->sum();
@@ -48,7 +47,8 @@ class DatangController extends Controller
                 ];
             }
 
-            $groupedByMonth = $datangData->groupBy(fn($dataset) => Carbon::parse($dataset->tanggal)->format('M-Y'));
+            // Group data by month, sort the keys (months) in ascending order
+            $groupedByMonth = $datangData->groupBy(fn($dataset) => Carbon::parse($dataset->tanggal)->format('Y-m'))->sortKeys();
 
             foreach ($groupedByMonth as $month => $dailyData) {
                 $simulasiPerMonth = [];
@@ -108,7 +108,7 @@ class DatangController extends Controller
                     $simulasiPerMonth[] = $dailySimulation;
                 }
 
-                // Hitung rata-rata akurasi setiap kolom simulasi
+                // Calculate average accuracy for each simulation column
                 $numRows = count($comparisonPerMonth);
                 $sumAccuracies = array_fill(0, 5, 0);
                 $bestPredictions = [];
@@ -122,7 +122,7 @@ class DatangController extends Controller
                 $avgAccuracies = array_map(fn($sum) => $numRows > 0 ? $sum / $numRows : 0, $sumAccuracies);
                 $bestSimulationIndex = array_keys($avgAccuracies, max($avgAccuracies))[0];
 
-                // Simpan nilai prediksi terbaik per baris
+                // Save the best prediction per row
                 foreach ($comparisonPerMonth as $row) {
                     $bestPredictions[] = $row['simulations'][$bestSimulationIndex];
                 }
@@ -142,8 +142,12 @@ class DatangController extends Controller
                     'best_simulation_avg_accuracy' => $avgAccuracies[$bestSimulationIndex],
                 ];
             }
+
+            // Sort months in ascending order (from January to December)
+            ksort($monthlyResults); // Ensure months are ordered from January to December
         }
 
+        // Get selected month from request
         $selectedMonth = $request->input('month', null);
         $selectedMonthResults = [];
 
@@ -171,4 +175,5 @@ class DatangController extends Controller
 
         return ($count > 0) ? $totalApe / $count : 0;
     }
+
 }
