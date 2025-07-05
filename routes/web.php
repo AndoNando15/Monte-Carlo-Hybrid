@@ -6,6 +6,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DatasetController;
 use App\Http\Controllers\MonteCarlo\BerangkatController;
 use App\Http\Controllers\MonteCarlo\DatangController;
+use App\Http\Controllers\Smothing\BerangkatControllers;
+use App\Http\Controllers\Smothing\DatangControllers;
 use Illuminate\Support\Facades\Route;
 
 
@@ -32,6 +34,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/montecarlo/refresh-all', [DatangController::class, 'refreshAll'])->name('montecarlo.refreshAll');
     Route::get('/monte-carlo', [DatangController::class, 'index'])->name('monte-carlo.datang.index');
 
+
+    // Smothing
+    Route::resource('smothing-datang', DatangControllers::class);
+    Route::resource('smothing-berangkat', BerangkatControllers::class);
 
 });
 

@@ -140,8 +140,28 @@
                             href="{{ url('/monteCarlo-berangkat') }}">Berangkat</a>
                     </div>
                 </div>
-            </li>
 
+
+
+            </li>
+            <li class="nav-item {{ request()->is('smothing-*') ? 'active' : '' }}">
+                <a class="nav-link {{ request()->is('smothing-*') ? '' : 'collapsed' }}" href="#"
+                    data-toggle="collapse" data-target="#collapseTwo"
+                    aria-expanded="{{ request()->is('smothing-*') ? 'true' : 'false' }}" aria-controls="collapseTwo">
+                    <i class="fas fa-fw fa-cog"></i>
+                    <span>Monte Carlo</span>
+                </a>
+                <div id="collapseTwo" class="collapse {{ request()->is('smothing-*') ? 'show' : '' }}"
+                    aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Prediksi Monte Carlo:</h6>
+                        <a class="collapse-item {{ request()->is('smothing-datang') ? 'active' : '' }}"
+                            href="{{ url('/smothing-datang') }}">Datang</a>
+                        <a class="collapse-item {{ request()->is('smothing-berangkat') ? 'active' : '' }}"
+                            href="{{ url('/smothing-berangkat') }}">Berangkat</a>
+                    </div>
+                </div>
+            </li>
 
             <!-- Sidebar Toggler (Sidebar) -->
             {{-- <div class="text-center d-none d-md-inline">
@@ -346,7 +366,8 @@
                                     Activity Log
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                <a class="dropdown-item" href="#" data-toggle="modal"
+                                    data-target="#logoutModal">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Logout
                                 </a>
