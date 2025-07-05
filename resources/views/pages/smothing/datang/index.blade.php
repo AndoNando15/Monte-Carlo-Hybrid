@@ -9,11 +9,12 @@
             <div class="card-body">
                 <div class="table-responsive mt-4">
                     <!-- Tabel Initial Trend -->
+                    <!-- Tabel Initial Trend -->
                     <h5>Initial Trend</h5>
                     <table class="table table-bordered table-striped" style="font-size: 0.95rem;">
                         <thead class="text-center bg-primary text-white">
                             <tr>
-                                <th>No</th> <!-- Tambahkan kolom nomor urut -->
+                                <th>No</th>
                                 <th>Month 1</th>
                                 <th>Month 2</th>
                                 <th>M2-M1</th>
@@ -23,11 +24,11 @@
                         <tbody>
                             @foreach ($initialTrendData as $index => $data)
                                 <tr>
-                                    <td>{{ $index + 1 }}</td> <!-- Menampilkan nomor urut -->
+                                    <td>{{ $index + 1 }}</td>
                                     <td>{{ $data['Month1'] }}</td>
                                     <td>{{ $data['Month2'] }}</td>
                                     <td>{{ $data['M2-M1'] }}</td>
-                                    <td>{{ number_format($data['(M2-M1)/20'], 4) }}</td>
+                                    <td>{{ $data['(M2-M1)/20'] }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -36,7 +37,7 @@
                         <strong>Rata-rata: {{ number_format($averageInitialTrend, 4) }}</strong>
                     </div>
 
-                    <!-- Tabel LEVEL At -->
+
                     <!-- Tabel LEVEL At -->
                     <h5 class="mt-4">LEVEL At (Pemulusan)</h5>
                     <table class="table table-bordered table-striped" id="dataTable" style="font-size: 0.95rem;">
