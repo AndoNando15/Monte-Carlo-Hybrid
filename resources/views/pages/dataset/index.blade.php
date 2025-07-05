@@ -87,7 +87,8 @@
                             @else
                                 @foreach ($groupedDatasets as $month => $monthlyDatasets)
                                     <tr>
-                                        <td colspan="7" class="text-center"><strong>Bulan:
+                                        <td colspan="7" class="text-center">
+                                            <strong>Bulan:
                                                 {{ \Carbon\Carbon::parse($month . '-01')->locale('id')->isoFormat('MMMM YYYY') }}</strong>
                                         </td>
                                     </tr>
@@ -100,10 +101,8 @@
                                             <td>{{ $dataset->datang }}</td>
                                             <td>{{ $dataset->berangkat }}</td>
                                             <td class="text-center">
-                                                <!-- Edit Button -->
                                                 <button class="btn btn-warning btn-sm" data-toggle="modal"
                                                     data-target="#editModal-{{ $dataset->id }}">Edit</button>
-                                                <!-- Delete Button -->
                                                 <button class="btn btn-danger btn-sm" data-toggle="modal"
                                                     data-target="#deleteModal-{{ $dataset->id }}">Delete</button>
                                             </td>
