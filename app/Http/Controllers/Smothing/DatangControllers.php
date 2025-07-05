@@ -68,80 +68,73 @@ class DatangControllers extends Controller
             return $item['(M2-M1)/20'];
         });
 
-        // Hitung LEVEL At
+        // Loop for calculating LEVEL At, TREND Tt, SEASONAL St, FORECAST, and other metrics
         foreach ($datasets_filtered as $index => $data) {
+            $month = Carbon::parse($data->tanggal)->month;
+            $previousData = $datasets_filtered[$index - 1] ?? null;
+
+            // Skip December (month == 12) for calculations
+            if ($month == 12) {
+                // Skip calculations for December
+                $data->level_at = null;
+                $data->trend_t = null;
+                $data->seasonal_st = null;
+                $data->forecast = null;
+                $data->error = null;
+                $data->absolute_error = null;
+                $data->squared_error = null;
+                $data->absolute_percentage_error = null;
+                continue;
+            }
+
+            // Calculate LEVEL At (Pemulusan)
             if ($index < 20) {
                 $data->level_at = $average;
             } else {
-                $previousData = $datasets_filtered[$index - 1] ?? null;
-
                 $alpha = 0.1;
                 $levelAtPrev = $previousData->level_at ?? 0;
                 $trendPrev = $previousData->trend_t ?? 0;
-                $seasonalPrev = $previousData->seasonal_st ?? 1; // cegah divide by zero
+                $seasonalPrev = $previousData->seasonal_st ?? 1; // prevent divide by zero
 
                 $data->level_at = $alpha * ($data->datang / $seasonalPrev) + (1 - $alpha) * ($levelAtPrev + $trendPrev);
             }
-        }
 
-        // Hitung TREND Tt
-        foreach ($datasets_filtered as $index => $data) {
+            // Calculate TREND Tt
             if ($index === 19) {
-                // Baris ke-20 → isi TREND dari rata-rata initial trend
                 $data->trend_t = $averageInitialTrend;
             } elseif ($index > 19) {
-                $previousData = $datasets_filtered[$index - 1] ?? null;
-
                 $beta = 0.05;
                 $levelNow = $data->level_at ?? 0;
                 $levelPrev = $previousData->level_at ?? 0;
                 $trendPrev = $previousData->trend_t ?? 0;
 
                 $data->trend_t = $beta * ($levelNow - $levelPrev) + (1 - $beta) * $trendPrev;
-            } else {
-                $data->trend_t = 0; // untuk 0-18
             }
-        }
 
-        // Hitung SEASONAL St
-        foreach ($datasets_filtered as $index => $data) {
+            // Calculate SEASONAL St
             if ($index < 20) {
-                // 20 data pertama: rumus awal
-                $data->seasonal_st = ($data->datang > 0)
-                    ? $data->datang / $data->level_at
-                    : 0;
+                $data->seasonal_st = ($data->datang > 0) ? $data->datang / $data->level_at : 0;
             } else {
-                // Data setelah 20 → gunakan rumus smoothing
                 $gamma = 0.1;
-                $prevSeasonal = $datasets_filtered[$index - 1]->seasonal_st ?? 1;
+                $prevSeasonal = $previousData->seasonal_st ?? 1;
                 $levelAtNow = $data->level_at ?? 1;
                 $datangNow = $data->datang ?? 1;
 
-                $data->seasonal_st = ($levelAtNow != 0)
-                    ? $gamma * ($datangNow / $levelAtNow) + (1 - $gamma) * $prevSeasonal
-                    : $prevSeasonal;
+                $data->seasonal_st = ($levelAtNow != 0) ? $gamma * ($datangNow / $levelAtNow) + (1 - $gamma) * $prevSeasonal : $prevSeasonal;
             }
-        }
-        $secondMonth = Carbon::parse($datasets_filtered[20]->tanggal)->month; // pastikan data ke-21 mulai dari bulan ke-2
 
-        $seasonal_base = $datasets_filtered->take(20)->values(); // ambil St dari bulan pertama
-
-        foreach ($datasets_filtered as $index => $data) {
+            // Calculate FORECAST
+            $seasonal_base = $datasets_filtered->take(20)->values();
             if ($index >= 20) {
                 $level = $data->level_at ?? 0;
                 $trend = $data->trend_t ?? 0;
-
-                // Ambil seasonal berdasarkan pola musiman awal (index sejajar dengan baris pertama)
                 $seasonalIndex = ($index - 20) % 20;
                 $seasonal = $seasonal_base[$seasonalIndex]->seasonal_st ?? 1;
 
                 $data->forecast = ($level + $trend) * $seasonal;
-            } else {
-                $data->forecast = null;
             }
-        }
 
-        foreach ($datasets_filtered as $data) {
+            // Calculate error metrics
             $actual = $data->datang ?? 0;
             $forecast = $data->forecast ?? null;
 
@@ -157,7 +150,6 @@ class DatangControllers extends Controller
                 $data->absolute_percentage_error = null;
             }
         }
-
 
         // Format tanggal & hari
         foreach ($datasets_filtered as $dataset) {

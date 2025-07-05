@@ -51,7 +51,6 @@
                                 <th>TREND Tt</th>
                                 <th>SEASONAL St(Musiman)</th>
                                 <th>FORECAST</th>
-                                <th>FORECAST</th>
                                 <th>ERROR</th>
                                 <th>ABSOLUTE ERROR</th>
                                 <th>SQUARED ERROR</th>
@@ -66,7 +65,7 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $data->tanggal }}</td>
                                     <td>{{ $data->datang }}</td>
-                                    <td>{{ $data->level_at ? number_format($data->level_at, 2) : 0 }}</td>
+                                    {{-- <td>{{ $data->level_at ? number_format($data->level_at, 2) : 0 }}</td> --}}
                                     <td>{{ $data->level_at !== null ? number_format($data->level_at, 2) : '-' }}</td>
                                     <td>{{ $data->trend_t !== null ? number_format($data->trend_t, 4) : '-' }}</td>
                                     <td>{{ $data->seasonal_st !== null ? number_format($data->seasonal_st, 4) : '-' }}</td>
