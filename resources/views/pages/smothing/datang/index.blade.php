@@ -50,6 +50,8 @@
                                 <th>LEVEL At (Pemulusan)</th>
                                 <th>TREND Tt</th>
                                 <th>SEASONAL St(Musiman)</th>
+                                <th>FORECAST</th>
+
                             </tr>
                         </thead>
                         <tbody>
@@ -61,6 +63,8 @@
                                     <td>{{ $data->level_at ? number_format($data->level_at, 2) : 0 }}</td>
                                     <td>{{ $data->trend_t ? number_format($data->trend_t, 4) : 0 }}</td>
                                     <td>{{ $data->seasonal_st ? number_format($data->seasonal_st, 4) : 0 }}</td>
+                                    <td>{{ number_format($data->forecast ?? 0, 4) }}</td>
+
                                 </tr>
                             @endforeach
                         </tbody>

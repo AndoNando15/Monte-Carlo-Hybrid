@@ -122,6 +122,25 @@ class DatangControllers extends Controller
                     : $prevSeasonal;
             }
         }
+        $secondMonth = Carbon::parse($datasets_filtered[20]->tanggal)->month; // pastikan data ke-21 mulai dari bulan ke-2
+
+        $seasonal_base = $datasets_filtered->take(20)->values(); // ambil St dari bulan pertama
+
+        foreach ($datasets_filtered as $index => $data) {
+            if ($index >= 20) {
+                $level = $data->level_at ?? 0;
+                $trend = $data->trend_t ?? 0;
+
+                // Ambil seasonal berdasarkan pola musiman awal (index sejajar dengan baris pertama)
+                $seasonalIndex = ($index - 20) % 20;
+                $seasonal = $seasonal_base[$seasonalIndex]->seasonal_st ?? 1;
+
+                $data->forecast = ($level + $trend) * $seasonal;
+            } else {
+                $data->forecast = null;
+            }
+        }
+
 
 
         // Format tanggal & hari
