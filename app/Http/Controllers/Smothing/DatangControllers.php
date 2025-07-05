@@ -16,13 +16,24 @@ class DatangControllers extends Controller
         // Ambil bulan pertama berdasarkan data yang ada
         $firstMonth = Carbon::parse($datasets->first()->tanggal)->month;
 
-        // Filter data untuk bulan pertama dan kedua, hanya ambil 20 data pertama untuk Initial Trend
-        $datasets_initial_trend = $datasets->filter(function ($data) use ($firstMonth) {
-            return Carbon::parse($data->tanggal)->month == $firstMonth || Carbon::parse($data->tanggal)->month == $firstMonth + 1;
-        })->take(20); // Ambil hanya 20 data pertama untuk Initial Trend
+        // Ambil bulan kedua
+        $secondMonth = $firstMonth + 1;
 
-        // Filter data untuk semua bulan (semua data) untuk tabel LEVEL At, TREND Tt, SEASONAL St
-        $datasets_filtered = $datasets;
+        // Filter data untuk bulan pertama dan kedua, hanya ambil 20 data pertama untuk Initial Trend
+        $datasets_initial_trend = $datasets->filter(function ($data) use ($firstMonth, $secondMonth) {
+            $month = Carbon::parse($data->tanggal)->month;
+            return $month == $firstMonth || $month == $secondMonth;
+        })->take(21); // Ambil hanya 20 data pertama untuk Initial Trend
+
+        // Mengelompokkan data berdasarkan bulan dan hanya mengambil 20 data per bulan
+        $datasets_by_month = $datasets->groupBy(function ($date) {
+            return Carbon::parse($date->tanggal)->format('Y-m'); // Kelompokkan berdasarkan bulan
+        });
+
+        // Batasi jumlah data per bulan menjadi 20
+        $datasets_filtered = $datasets_by_month->map(function ($monthData) {
+            return $monthData->take(20); // Ambil 20 data pertama setiap bulan
+        })->flatten();
 
         // Hitung rata-rata untuk LEVEL At pada bulan pertama
         $datasets_first_month = $datasets_initial_trend->filter(function ($data) use ($firstMonth) {
@@ -42,7 +53,21 @@ class DatangControllers extends Controller
             if (Carbon::parse($data->tanggal)->month == $firstMonth) {
                 $data->level_at = $average;
             } else {
-                $data->level_at = 0;  // Kolom LEVEL At diisi 0 untuk data selain bulan pertama
+                // Rumus LEVEL At untuk bulan kedua
+                $previousMonthData = $datasets_filtered->filter(function ($item) use ($data) {
+                    return Carbon::parse($item->tanggal)->month == Carbon::parse($data->tanggal)->month - 1;
+                })->last(); // Ambil data bulan sebelumnya
+                $alpha = 0.1; // Set alpha value as per your requirement
+                $levelAtPrev = $previousMonthData ? $previousMonthData->level_at : 0;
+                $trend = $previousMonthData ? $previousMonthData->trend_t : 0;
+                $seasonal = $previousMonthData ? $previousMonthData->seasonal_st : 0;
+
+                // Prevent division by zero in LEVEL At formula
+                if ($seasonal != 0) {
+                    $data->level_at = $alpha * ($data->datang / $seasonal) + (1 - $alpha) * ($levelAtPrev + $trend);
+                } else {
+                    $data->level_at = 0; // If seasonal is zero, set LEVEL At to 0
+                }
             }
         }
 
@@ -78,11 +103,19 @@ class DatangControllers extends Controller
         // Menambahkan kolom SEASONAL St(Musiman)
         foreach ($datasets_filtered as $data) {
             // SEASONAL St(Musiman) dihitung dengan rumus LEVEL At / Datang
-            if ($data->level_at && $data->datang != 0) {
-                $data->seasonal_st = $data->level_at / $data->datang;
+            if ($data->level_at && $data->datang > 0) {
+                $data->seasonal_st = $data->level_at / $data->datang; // Only divide if Datang > 0
             } else {
-                $data->seasonal_st = 0; // Jika tidak ada LEVEL At atau Datang = 0, SEASONAL St(Musiman) diset ke 0
+                // Jika tidak ada LEVEL At atau Datang = 0, SEASONAL St(Musiman) diset ke 0
+                $data->seasonal_st = 0;
             }
+        }
+
+        // Format the date and day in Indonesian
+        foreach ($datasets as $dataset) {
+            $carbonDate = Carbon::parse($dataset->tanggal)->locale('id');
+            $dataset->tanggal = $carbonDate->isoFormat('D MMMM YYYY');
+            $dataset->hari = $carbonDate->isoFormat('dddd');
         }
 
         // Kirim data ke view

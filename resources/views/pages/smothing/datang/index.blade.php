@@ -37,6 +37,7 @@
                     </div>
 
                     <!-- Tabel LEVEL At -->
+                    <!-- Tabel LEVEL At -->
                     <h5 class="mt-4">LEVEL At (Pemulusan)</h5>
                     <table class="table table-bordered table-striped" id="dataTable" style="font-size: 0.95rem;">
                         <thead class="text-center bg-primary text-white">
@@ -68,6 +69,7 @@
                             @endforeach
                         </tbody>
                     </table>
+
                 </div>
             </div>
         </div>
