@@ -28,7 +28,7 @@
                                     <td>{{ $data['Month1'] }}</td>
                                     <td>{{ $data['Month2'] }}</td>
                                     <td>{{ $data['M2-M1'] }}</td>
-                                    <td>{{ $data['(M2-M1)/20'] }}</td>
+                                    <td>{{ number_format($data['(M2-M1)/20'], 4) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -38,6 +38,7 @@
                     </div>
 
 
+                    <!-- Tabel LEVEL At -->
                     <!-- Tabel LEVEL At -->
                     <h5 class="mt-4">LEVEL At (Pemulusan)</h5>
                     <table class="table table-bordered table-striped" id="dataTable" style="font-size: 0.95rem;">
@@ -57,19 +58,16 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $data->tanggal }}</td>
                                     <td>{{ $data->datang }}</td>
-                                    <td>
-                                        {{ $data->level_at ? number_format($data->level_at, 2) : 0 }}
-                                    </td>
-                                    <td>
-                                        {{ $data->trend_t ? number_format($data->trend_t, 4) : 0 }}
-                                    </td>
-                                    <td>
-                                        {{ $data->seasonal_st ? number_format($data->seasonal_st, 4) : 0 }}
-                                    </td>
+                                    <td>{{ $data->level_at ? number_format($data->level_at, 2) : 0 }}</td>
+                                    <td>{{ $data->trend_t ? number_format($data->trend_t, 4) : 0 }}</td>
+                                    <td>{{ $data->seasonal_st ? number_format($data->seasonal_st, 4) : 0 }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
+
+
+
 
                 </div>
             </div>
