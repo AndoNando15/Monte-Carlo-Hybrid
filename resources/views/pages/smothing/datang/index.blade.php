@@ -13,6 +13,7 @@
                     <table class="table table-bordered table-striped" style="font-size: 0.95rem;">
                         <thead class="text-center bg-primary text-white">
                             <tr>
+                                <th>No</th> <!-- Tambahkan kolom nomor urut -->
                                 <th>Month 1</th>
                                 <th>Month 2</th>
                                 <th>M2-M1</th>
@@ -20,8 +21,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($initialTrendData as $data)
+                            @foreach ($initialTrendData as $index => $data)
                                 <tr>
+                                    <td>{{ $index + 1 }}</td> <!-- Menampilkan nomor urut -->
                                     <td>{{ $data['Month1'] }}</td>
                                     <td>{{ $data['Month2'] }}</td>
                                     <td>{{ $data['M2-M1'] }}</td>

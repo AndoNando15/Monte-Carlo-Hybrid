@@ -16,13 +16,16 @@ class DatangControllers extends Controller
         // Ambil bulan pertama berdasarkan data yang ada
         $firstMonth = Carbon::parse($datasets->first()->tanggal)->month;
 
-        // Filter data untuk bulan pertama dan kedua, hanya ambil 20 data pertama
-        $datasets_filtered = $datasets->filter(function ($data) use ($firstMonth) {
+        // Filter data untuk bulan pertama dan kedua, hanya ambil 20 data pertama untuk Initial Trend
+        $datasets_initial_trend = $datasets->filter(function ($data) use ($firstMonth) {
             return Carbon::parse($data->tanggal)->month == $firstMonth || Carbon::parse($data->tanggal)->month == $firstMonth + 1;
-        })->take(20); // Ambil hanya 20 data pertama
+        })->take(20); // Ambil hanya 20 data pertama untuk Initial Trend
+
+        // Filter data untuk semua bulan (semua data) untuk tabel LEVEL At, TREND Tt, SEASONAL St
+        $datasets_filtered = $datasets;
 
         // Hitung rata-rata untuk LEVEL At pada bulan pertama
-        $datasets_first_month = $datasets_filtered->filter(function ($data) use ($firstMonth) {
+        $datasets_first_month = $datasets_initial_trend->filter(function ($data) use ($firstMonth) {
             return Carbon::parse($data->tanggal)->month == $firstMonth;
         });
 
@@ -34,7 +37,6 @@ class DatangControllers extends Controller
         $lastDateFirstMonth = $datasets_first_month->last()->tanggal;
 
         // Menyimpan LEVEL At hanya pada tanggal terakhir bulan pertama
-        $levelAt = null; // Nilai LEVEL At akan dihitung di sini
         foreach ($datasets_filtered as $data) {
             // LEVEL At diisi dengan nilai rata-rata bulan pertama pada semua baris bulan pertama
             if (Carbon::parse($data->tanggal)->month == $firstMonth) {
@@ -46,9 +48,9 @@ class DatangControllers extends Controller
 
         // Perhitungan Initial Trend untuk 20 data pertama
         $initialTrendData = [];
-        for ($i = 0; $i < count($datasets_filtered) - 1; $i++) {
-            $month1 = $datasets_filtered[$i]->datang;
-            $month2 = $datasets_filtered[$i + 1]->datang;
+        for ($i = 0; $i < count($datasets_initial_trend) - 1; $i++) {
+            $month1 = $datasets_initial_trend[$i]->datang;
+            $month2 = $datasets_initial_trend[$i + 1]->datang;
 
             $m2_m1 = $month2 - $month1; // M2 - M1
             $m2_m1_per_20 = $m2_m1 / 20; // (M2 - M1) / 20
@@ -84,6 +86,6 @@ class DatangControllers extends Controller
         }
 
         // Kirim data ke view
-        return view('pages.smothing.datang.index', compact('datasets_filtered', 'initialTrendData', 'averageInitialTrend'));
+        return view('pages.smothing.datang.index', compact('datasets_filtered', 'datasets_initial_trend', 'initialTrendData', 'averageInitialTrend'));
     }
 }
