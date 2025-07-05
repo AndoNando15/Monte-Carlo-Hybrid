@@ -8,7 +8,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive mt-4">
-                    <!-- Tabel Initial Trend -->
+
                     <!-- Tabel Initial Trend -->
                     <h5>Initial Trend</h5>
                     <table class="table table-bordered table-striped" style="font-size: 0.95rem;">
@@ -37,8 +37,6 @@
                         <strong>Rata-rata: {{ number_format($averageInitialTrend, 4) }}</strong>
                     </div>
 
-
-                    <!-- Tabel LEVEL At -->
                     <!-- Tabel LEVEL At -->
                     <h5 class="mt-4">LEVEL At (Pemulusan)</h5>
                     <table class="table table-bordered table-striped" id="dataTable" style="font-size: 0.95rem;">
@@ -55,8 +53,6 @@
                                 <th>ABSOLUTE ERROR</th>
                                 <th>SQUARED ERROR</th>
                                 <th>ABSOLUTE % ERROR</th>
-
-
                             </tr>
                         </thead>
                         <tbody>
@@ -65,7 +61,6 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $data->tanggal }}</td>
                                     <td>{{ $data->datang }}</td>
-                                    {{-- <td>{{ $data->level_at ? number_format($data->level_at, 2) : 0 }}</td> --}}
                                     <td>{{ $data->level_at !== null ? number_format($data->level_at, 2) : '-' }}</td>
                                     <td>{{ $data->trend_t !== null ? number_format($data->trend_t, 4) : '-' }}</td>
                                     <td>{{ $data->seasonal_st !== null ? number_format($data->seasonal_st, 4) : '-' }}</td>
@@ -77,17 +72,23 @@
                                     </td>
                                     <td>{{ $data->absolute_percentage_error !== null ? number_format($data->absolute_percentage_error * 100, 2) . '%' : '-' }}
                                     </td>
-
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
 
-
-
-
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        const desemberData = @json($desemberDataForLog);
+        console.log("📊 Data TREND bulan Desember (format aman untuk JS):");
+        console.table(desemberData);
+
+        // Jika ingin parse tanggal ISO
+        const parsedDates = desemberData.map(item => new Date(item.tanggal));
+        console.log("🕒 Parsed ISO Dates (Desember):", parsedDates);
+    </script>
 @endsection
