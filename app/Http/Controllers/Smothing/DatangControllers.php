@@ -15,7 +15,15 @@ class DatangControllers extends Controller
         $datasets = Dataset::orderBy('tanggal')->get();
 
         // Ambil 20 data pertama sebagai basis LEVEL At awal
-        $datasets_filtered = $datasets->take(40)->values(); // Ambil lebih banyak kalau perlu
+        $datasets_filtered = $datasets
+            ->groupBy(function ($data) {
+                return Carbon::parse($data->tanggal)->format('Y-m');
+            })
+            ->flatMap(function ($group) {
+                return $group->sortBy('tanggal')->take(20);
+            })
+            ->sortBy('tanggal')
+            ->values();
 
         // Ambil 20 data pertama untuk perhitungan rata-rata awal
         $first_20_data = $datasets_filtered->take(20);
