@@ -37,7 +37,7 @@
                         <strong>Rata-rata: {{ number_format($averageInitialTrend, 4) }}</strong>
                     </div>
 
-                    <!-- Tabel LEVEL At -->
+                    <!-- Tabel Forecast -->
                     <h5 class="mt-4">LEVEL At (Pemulusan)</h5>
                     <table class="table table-bordered table-striped" id="dataTable" style="font-size: 0.95rem;">
                         <thead class="text-center bg-primary text-white">
@@ -57,24 +57,139 @@
                         </thead>
                         <tbody>
                             @foreach ($datasets_filtered as $index => $data)
+                                @php
+                                    $isDesember = \Carbon\Carbon::parse($data->tanggal_iso)->month === 12;
+                                @endphp
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $data->tanggal }}</td>
                                     <td>{{ $data->datang }}</td>
-                                    <td>{{ $data->level_at !== null ? number_format($data->level_at, 2) : '-' }}</td>
+
+                                    <!-- LEVEL At -->
+                                    <td>
+                                        @if (!$isDesember)
+                                            {{ $data->level_at !== null ? number_format($data->level_at, 2) : '-' }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+
+                                    <!-- TREND Tt -->
                                     <td>{{ $data->trend_t !== null ? number_format($data->trend_t, 4) : '-' }}</td>
-                                    <td>{{ $data->seasonal_st !== null ? number_format($data->seasonal_st, 4) : '-' }}</td>
-                                    <td>{{ $data->forecast !== null ? number_format($data->forecast, 4) : '-' }}</td>
-                                    <td>{{ $data->error !== null ? number_format($data->error, 4) : '-' }}</td>
-                                    <td>{{ $data->absolute_error !== null ? number_format($data->absolute_error, 4) : '-' }}
+
+                                    <!-- SEASONAL St -->
+                                    <td>
+                                        @if (!$isDesember)
+                                            {{ $data->seasonal_st !== null ? number_format($data->seasonal_st, 4) : '-' }}
+                                        @else
+                                            -
+                                        @endif
                                     </td>
-                                    <td>{{ $data->squared_error !== null ? number_format($data->squared_error, 4) : '-' }}
+
+                                    <!-- FORECAST -->
+                                    <td>
+                                        {{ $data->forecast !== null
+                                            ? ($isDesember
+                                                ? number_format($data->forecast, 0)
+                                                : number_format($data->forecast, 4))
+                                            : '-' }}
                                     </td>
-                                    <td>{{ $data->absolute_percentage_error !== null ? number_format($data->absolute_percentage_error * 100, 2) . '%' : '-' }}
+
+                                    <!-- ERROR -->
+                                    <td>
+                                        {{ $data->error !== null
+                                            ? ($isDesember
+                                                ? number_format($data->error, 0)
+                                                : number_format($data->error, 4))
+                                            : '-' }}
+                                    </td>
+
+                                    <!-- ABSOLUTE ERROR -->
+                                    <td>
+                                        @if (!$isDesember)
+                                            {{ $data->absolute_error !== null ? number_format($data->absolute_error, 4) : '-' }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+
+                                    <!-- SQUARED ERROR -->
+                                    <td>
+                                        @if (!$isDesember)
+                                            {{ $data->squared_error !== null ? number_format($data->squared_error, 4) : '-' }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+
+                                    <!-- ABSOLUTE % ERROR -->
+                                    <td>
+                                        @if (!$isDesember)
+                                            {{ $data->absolute_percentage_error !== null
+                                                ? number_format($data->absolute_percentage_error * 100, 2) . '%'
+                                                : '-' }}
+                                        @else
+                                            -
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
+                    </table>
+                    <!-- Tabel Akurasi dan APE Desember -->
+                    <h5 class="mt-5">Akurasi dan APE Desember</h5>
+                    <table class="table table-bordered table-striped" style="font-size: 0.95rem; width: 60%;">
+                        <thead class="text-center bg-success text-white">
+                            <tr>
+                                <th>K</th>
+                                <th>Aktual</th>
+                                <th>Forecast</th>
+                                <th>ERROR</th>
+                                <th>Akurasi (%)</th>
+                                <th>APE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $sumAkurasi = 0;
+                                $sumAPE = 0;
+                                $total = 0;
+                            @endphp
+                            @foreach ($desemberDataForLog as $row)
+                                @php
+                                    $aktual = $row['datang'];
+                                    $forecast = $row['forecast'];
+                                    $error = $row['error'];
+
+                                    $akurasi =
+                                        $forecast && $aktual ? min($forecast, $aktual) / max($forecast, $aktual) : 0;
+                                    $ape = $aktual != 0 ? abs($error) / abs($aktual) : 0;
+
+                                    $sumAkurasi += $akurasi;
+                                    $sumAPE += $ape;
+                                    $total++;
+                                @endphp
+                                <tr class="text-center">
+                                    <td>{{ $row['urutan'] }}</td>
+                                    <td>{{ number_format($aktual, 0) }}</td>
+                                    <td>{{ number_format($forecast, 0) }}</td>
+                                    <td>{{ number_format($error, 0) }}</td>
+                                    <td>{{ number_format($akurasi * 100, 2) }}%</td>
+                                    <td>{{ number_format($ape, 2) }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot class="bg-light text-center font-weight-bold">
+                            <tr>
+                                <td colspan="4">Rata-rata</td>
+                                <td>
+                                    {{ $total > 0 ? number_format(($sumAkurasi / $total) * 100, 2) . '%' : '0%' }}
+                                </td>
+                                <td>
+                                    {{ $total > 0 ? number_format($sumAPE / $total, 2) : '0.00' }}
+                                </td>
+                            </tr>
+                        </tfoot>
                     </table>
 
                 </div>
@@ -87,7 +202,6 @@
         console.log("📊 Data TREND bulan Desember (format aman untuk JS):");
         console.table(desemberData);
 
-        // Jika ingin parse tanggal ISO
         const parsedDates = desemberData.map(item => new Date(item.tanggal));
         console.log("🕒 Parsed ISO Dates (Desember):", parsedDates);
     </script>
