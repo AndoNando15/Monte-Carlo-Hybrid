@@ -163,7 +163,7 @@
 
                                     $akurasi =
                                         $forecast && $aktual ? min($forecast, $aktual) / max($forecast, $aktual) : 0;
-                                    $ape = $aktual != 0 ? abs($error) / abs($aktual) : 0;
+                                    $ape = 1 - $akurasi;
 
                                     $sumAkurasi += $akurasi;
                                     $sumAPE += $ape;
