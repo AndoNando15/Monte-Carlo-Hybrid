@@ -134,8 +134,10 @@
                     aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Prediksi Monte Carlo:</h6>
+                        {{-- <a class="collapse-item {{ request()->is('monteCarlo-datang') ? 'active' : '' }}"
+                            href="{{ url('/monteCarlo-datang') }}">Datang</a> --}}
                         <a class="collapse-item {{ request()->is('monteCarlo-datang') ? 'active' : '' }}"
-                            href="{{ url('/monteCarlo-datang') }}">Datang</a>
+                            href="{{ url('/monte-carlo?month=Dec-2023') }}">Datang</a>
                         <a class="collapse-item {{ request()->is('monteCarlo-berangkat') ? 'active' : '' }}"
                             href="{{ url('/monteCarlo-berangkat') }}">Berangkat</a>
                     </div>

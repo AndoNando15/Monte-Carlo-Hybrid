@@ -48,7 +48,7 @@ class DatangController extends Controller
             }
 
             // Group data by month, sort the keys (months) in ascending order
-            $groupedByMonth = $datangData->groupBy(fn($dataset) => Carbon::parse($dataset->tanggal)->format('Y-m'))->sortKeys();
+            $groupedByMonth = $datangData->groupBy(fn($dataset) => Carbon::parse($dataset->tanggal)->format('M-Y'))->sortKeys();
 
             foreach ($groupedByMonth as $month => $dailyData) {
                 $simulasiPerMonth = [];

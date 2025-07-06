@@ -18,12 +18,12 @@
                     <table class="table table-bordered table-striped" id="dataTable" style="font-size: 0.95rem;">
                         <thead class="text-center bg-primary text-white">
                             <tr>
-                                <th>No</th>
-                                <th>Datang</th>
-                                <th>Frekuensi</th>
-                                <th>Probabilitas</th>
-                                <th>Komulatif</th>
-                                <th>Range</th>
+                                <th class="p-2">No</th>
+                                <th class="p-2">Datang</th>
+                                <th class="p-2">Frekuensi</th>
+                                <th class="p-2">Probabilitas</th>
+                                <th class="p-2">Komulatif</th>
+                                <th class="p-2">Range</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -53,6 +53,14 @@
                     </table>
                 </div>
 
+
+            </div>
+
+        </div>
+
+        <div class="card shadow mb-4">
+
+            <div class="card-body">
                 {{-- Dropdown pilih bulan --}}
                 <div class="text-center mt-4">
                     <form method="GET" action="{{ route('monte-carlo.datang.index') }}">
@@ -69,8 +77,11 @@
                     </form>
                 </div>
 
+            </div>
+        </div>
+        <div class="card shadow mb-4">
 
-
+            <div class="card-body">
                 {{-- Lihat Proses Button --}}
                 <div class="text-center mt-4">
                     <button id="lihatProses" class="btn btn-outline-success mb-2">Lihat Proses</button>
@@ -100,7 +111,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($selectedMonthResults['comparison'] as $index => $comparison)
+                            @foreach ($selectedMonthResults['comparison'] ?? [] as $index => $comparison)
                                 <tr class="text-center">
                                     <td>{{ $index + 1 }}</td>
                                     @foreach ($comparison['random_numbers'] as $num)
@@ -127,7 +138,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($selectedMonthResults['comparison'] as $index => $comparison)
+                            @foreach ($selectedMonthResults['comparison'] ?? [] as $index => $comparison)
                                 <tr class="text-center">
                                     <td>{{ $index + 1 }}</td>
                                     @foreach ($comparison['simulations'] as $sim)
@@ -154,7 +165,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($selectedMonthResults['comparison'] as $index => $comparison)
+                            @foreach ($selectedMonthResults['comparison'] ?? [] as $index => $comparison)
                                 <tr class="text-center">
                                     <td>{{ $index + 1 }}</td>
                                     @foreach ($comparison['accuracies'] as $acc)
@@ -184,10 +195,10 @@
                             @php
                                 // Initialize an array to hold the sum of each APE column
                                 $apeSums = [0, 0, 0, 0, 0];
-                                $totalRows = count($selectedMonthResults['comparison']);
+                                $totalRows = count($selectedMonthResults['comparison'] ?? []);
                             @endphp
 
-                            @foreach ($selectedMonthResults['comparison'] as $index => $comparison)
+                            @foreach ($selectedMonthResults['comparison'] ?? [] as $index => $comparison)
                                 <tr class="text-center">
                                     <td>{{ $index + 1 }}</td>
                                     @foreach ($comparison['apes'] as $apeIndex => $ape)
@@ -231,6 +242,11 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+        <div class="card shadow mb-4">
+
+            <div class="card-body">
                 {{-- Always Visible Akurasi Perbandingan APE Section --}}
                 <h1 class="text-center mb-4" style="font-size: 2rem; font-weight: bold; color: #4CAF50;">Akurasi
                     Perbandingan APE</h1>
@@ -238,11 +254,11 @@
                 <h5 class="text-center mb-5" style="font-size: 1.25rem; color: #555;">
                     Rata-Rata Akurasi Prediksi:
                     <span class="font-weight-bold" style="color: #2196F3;">
-                        {{ sprintf('%.2f', $selectedMonthResults['accuracy']) }}%</span> &
-                    MAPE:
+                        {{ sprintf('%.2f', $selectedMonthResults['accuracy'] ?? 0) }}%</span> & MAPE:
                     <span class="font-weight-bold" style="color: #f44336;">
-                        {{ sprintf('%.2f', $selectedMonthResults['mape']) }}%</span>
+                        {{ sprintf('%.2f', $selectedMonthResults['mape'] ?? 0) }}%</span>
                 </h5>
+
                 {{-- Tabel Prediksi, Data Asli, Selisih, Error, dan Akurasi --}}
                 <div class="table-responsive mt-4">
                     <table class="table table-bordered table-striped text-center"
@@ -258,7 +274,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($selectedMonthResults['comparison'] as $index => $comparison)
+                            @foreach ($selectedMonthResults['comparison'] ?? [] as $index => $comparison)
                                 @php
                                     $prediksi = $selectedMonthResults['best_predictions'][$index];
                                     $dataAsli = $comparison['actual'];
