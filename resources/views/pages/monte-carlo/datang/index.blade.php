@@ -7,12 +7,12 @@
                 <h4 class="m-0 font-weight-bold text-primary">Monte Carlo | Datang</h4>
             </div>
             <div class="card-body">
-
-                {{-- ACUAN Prediksi Text --}}
-                <h3 class="text-center mb-4" style="font-size: 1.5rem; font-weight: bold; color: #4CAF50;">
-                    ACUAN Prediksi
-                </h3>
-
+                <div class=" text-center" style=" background-color: #ecf7ff; width: 100%;">
+                    {{-- ACUAN Prediksi Text --}}
+                    <h3 class="text-center text-primary py-2" style="font-size: 1.5rem; font-weight: bold;">
+                        | Acuan Prediksi |
+                    </h3>
+                </div>
                 {{-- Tabel Data Terkelompok --}}
                 <div class="table-responsive mt-4">
                     <table class="table table-bordered table-striped" id="dataTable" style="font-size: 0.95rem;">
@@ -61,9 +61,13 @@
 
             <div class="card-body">
                 {{-- Dropdown pilih bulan --}}
-                <div class="text-center mt-4">
+                <div class="text-center">
+
                     <form method="GET" class=" gap-3" action="{{ route('monte-carlo.datang.index') }}">
-                        <h5 class="text-center">Pilih Bulan:</h5>
+                        <div class=" text-center mb-3" style=" background-color: #ecf7ff; width: 100%;">
+
+                            <h5 class="text-center text-primary py-2">| Pilih Bulan: |</h5>
+                        </div>
                         <select id="month" name="month" class="form-control d-inline-block">
                             <option value="">-- Pilih Bulan --</option>
                             @foreach ($monthlyResults as $month => $results)
@@ -72,7 +76,7 @@
                                 </option>
                             @endforeach
                         </select>
-                        <button type="submit" class="btn btn-primary mt-2">Tampilkan</button>
+                        <button type="submit" class="btn btn-primary mt-2 ">Tampilkan</button>
                     </form>
                 </div>
 
@@ -82,9 +86,11 @@
         {{-- Tombol untuk memilih tabel yang ditampilkan --}}
         <div class="card shadow mb-4">
             <div class="card-body">
-                <div class="text-center mt-4">
-                    <h5 class="text-center mb-3">Proses Monte Carlo</h5>
+                <div class="text-center ">
+                    <div class=" text-center mb-3" style=" background-color: #ecf7ff; width: 100%;">
 
+                        <h5 class="text-center text-primary py-2">| Proses Monte Carlo |</h5>
+                    </div>
                     <button id="toggleRandomNumbers" class="btn btn-outline-primary mb-2">Angka Acak</button>
                     <button id="toggleSimulasi" class="btn btn-outline-primary mb-2">Simulasi</button>
                     <button id="toggleAkurasi" class="btn btn-outline-primary mb-2">Akurasi</button>
@@ -98,10 +104,13 @@
         @if (isset($selectedMonthResults['comparison']))
             <div class="card shadow mb-4" id="angkaAcakTable" style="display:block;">
                 <div class="card-body">
-                    <h5 class="text-center">Angka Acak</h5>
+                    <div class=" text-center" style=" background-color: #ecf7ff; width: 100%;">
+
+                        <h5 class="text-center py-2 text-primary">| Proses Angka Acak |</h5>
+                    </div>
                     <div class="table-responsive mt-4">
                         <table class="table table-bordered table-striped">
-                            <thead class="text-center bg-primary text-white">
+                            <thead class="text-center py-2 bg-primary text-white">
                                 <tr>
                                     <th rowspan="2">No</th>
                                     <th colspan="5">Angka Acak</th>
@@ -132,7 +141,10 @@
         @if (isset($selectedMonthResults['comparison']))
             <div class="card shadow mb-4" id="simulasiTable" style="display:none;">
                 <div class="card-body">
-                    <h5 class="text-center">Simulasi</h5>
+                    <div class=" text-center" style=" background-color: #ecf7ff; width: 100%;">
+
+                        <h5 class="text-center text-primary py-2">| Proses Simulasi |</h5>
+                    </div>
                     <div class="table-responsive mt-4">
                         <table class="table table-bordered table-striped">
                             <thead class="text-center bg-primary text-white">
@@ -166,7 +178,10 @@
         @if (isset($selectedMonthResults['comparison']))
             <div class="card shadow mb-4" id="akurasTable" style="display:none;">
                 <div class="card-body">
-                    <h5 class="text-center">Akurasi</h5>
+                    <div class=" text-center" style=" background-color: #ecf7ff; width: 100%;">
+
+                        <h5 class="text-center text-primary py-2 ">| Proses Akurasi |</h5>
+                    </div>
                     <div class="table-responsive mt-4">
                         <table class="table table-bordered table-striped">
                             <thead class="text-center bg-primary text-white">
@@ -200,7 +215,10 @@
         @if (isset($selectedMonthResults['comparison']))
             <div class="card shadow mb-4" id="apeTable" style="display:none;">
                 <div class="card-body">
-                    <h5 class="text-center">Absolute Percentage Error (APE)</h5>
+                    <div class=" text-center" style=" background-color: #ecf7ff; width: 100%;">
+
+                        <h5 class="text-center text-primary py-2">| Proses Absolute Percentage Error (APE) |</h5>
+                    </div>
                     <div class="table-responsive mt-4">
                         <table class="table table-bordered table-striped">
                             <thead class="text-center bg-primary text-white">
@@ -272,9 +290,9 @@
 
             <div class="card-body">
                 {{-- Always Visible Akurasi Perbandingan APE Section --}}
-                <div class=" text-center py-2" style=" background-color: #ecf7ff; width: 100%; padding:  ;">
-                    <h1 class="text-center mb-2" style="font-size: 2rem; font-weight: bold; color: #2196F3;">Akurasi
-                        Perbandingan APE</h1>
+                <div class=" text-center py-2" style=" background-color: #ecf7ff; width: 100%;">
+                    <h1 class="text-center mb-2 text-primary" style="font-size: 2rem; font-weight: bold;">| Akurasi
+                        Perbandingan APE |</h1>
 
                     <h5 class="text-center" style="font-size: 1.25rem; color: #555;">
                         Rata-Rata Akurasi Prediksi:
