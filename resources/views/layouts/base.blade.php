@@ -125,38 +125,36 @@
             <!-- Nav Item - Monte Carlo Collapse Menu -->
             <li class="nav-item {{ request()->is('monteCarlo-*') ? 'active' : '' }}">
                 <a class="nav-link {{ request()->is('monteCarlo-*') ? '' : 'collapsed' }}" href="#"
-                    data-toggle="collapse" data-target="#collapseTwo"
-                    aria-expanded="{{ request()->is('monteCarlo-*') ? 'true' : 'false' }}" aria-controls="collapseTwo">
+                    data-toggle="collapse" data-target="#collapseMonteCarlo"
+                    aria-expanded="{{ request()->is('monteCarlo-*') ? 'true' : 'false' }}"
+                    aria-controls="collapseMonteCarlo">
                     <i class="fas fa-fw fa-cog"></i>
                     <span>Monte Carlo</span>
                 </a>
-                <div id="collapseTwo" class="collapse {{ request()->is('monteCarlo-*') ? 'show' : '' }}"
-                    aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseMonteCarlo" class="collapse {{ request()->is('monteCarlo-*') ? 'show' : '' }}"
+                    aria-labelledby="headingMonteCarlo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Prediksi Monte Carlo:</h6>
-                        {{-- <a class="collapse-item {{ request()->is('monteCarlo-datang') ? 'active' : '' }}"
-                            href="{{ url('/monteCarlo-datang') }}">Datang</a> --}}
                         <a class="collapse-item {{ request()->is('monteCarlo-datang') ? 'active' : '' }}"
-                            href="{{ url('/monte-carlo?month=Dec-2023') }}">Datang</a>
+                            href="{{ url('/monte-carlo-datang?month=Dec-2023') }}">Datang</a>
                         <a class="collapse-item {{ request()->is('monteCarlo-berangkat') ? 'active' : '' }}"
-                            href="{{ url('/monteCarlo-berangkat') }}">Berangkat</a>
+                            href="{{ url('/monte-carlo-berangkat?month=Dec-2023') }}">Berangkat</a>
                     </div>
                 </div>
-
-
-
             </li>
+
             <li class="nav-item {{ request()->is('smothing-*') ? 'active' : '' }}">
                 <a class="nav-link {{ request()->is('smothing-*') ? '' : 'collapsed' }}" href="#"
-                    data-toggle="collapse" data-target="#collapseTwo"
-                    aria-expanded="{{ request()->is('smothing-*') ? 'true' : 'false' }}" aria-controls="collapseTwo">
+                    data-toggle="collapse" data-target="#collapseSmothing"
+                    aria-expanded="{{ request()->is('smothing-*') ? 'true' : 'false' }}"
+                    aria-controls="collapseSmothing">
                     <i class="fas fa-fw fa-cog"></i>
-                    <span>Monte Carlo</span>
+                    <span>Smothing</span>
                 </a>
-                <div id="collapseTwo" class="collapse {{ request()->is('smothing-*') ? 'show' : '' }}"
-                    aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseSmothing" class="collapse {{ request()->is('smothing-*') ? 'show' : '' }}"
+                    aria-labelledby="headingSmothing" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Prediksi Monte Carlo:</h6>
+                        <h6 class="collapse-header">Prediksi Smothing:</h6>
                         <a class="collapse-item {{ request()->is('smothing-datang') ? 'active' : '' }}"
                             href="{{ url('/smothing-datang') }}">Datang</a>
                         <a class="collapse-item {{ request()->is('smothing-berangkat') ? 'active' : '' }}"
@@ -164,6 +162,7 @@
                     </div>
                 </div>
             </li>
+
 
             <!-- Sidebar Toggler (Sidebar) -->
             {{-- <div class="text-center d-none d-md-inline">

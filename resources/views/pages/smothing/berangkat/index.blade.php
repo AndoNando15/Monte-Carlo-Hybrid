@@ -4,7 +4,7 @@
     <div class="container-fluid">
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h4 class="m-0 font-weight-bold text-primary">Triple Exponential Smoothing (Holt-Winters) | Datang</h4>
+                <h4 class="m-0 font-weight-bold text-primary">Triple Exponential Smoothing (Holt-Winters) | Berangkat</h4>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -64,7 +64,7 @@
                         <tr>
                             <th>No</th>
                             <th>Tanggal</th>
-                            <th>Datang</th>
+                            <th>berangkat</th>
                             <th>LEVEL At (Pemulusan)</th>
                             <th>Trend Tt</th>
                             <th>Seasonal St</th>
@@ -83,7 +83,7 @@
                             <tr class="text-center">
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $data->tanggal }}</td>
-                                <td>{{ $data->datang }}</td>
+                                <td>{{ $data->berangkat }}</td>
 
                                 <!-- LEVEL At -->
                                 <td>
@@ -188,7 +188,7 @@
                         @endphp
                         @foreach ($desemberDataForLog as $row)
                             @php
-                                $aktual = $row['datang'];
+                                $aktual = $row['berangkat'];
                                 $forecast = $row['forecast'];
                                 $error = $row['error'];
 
