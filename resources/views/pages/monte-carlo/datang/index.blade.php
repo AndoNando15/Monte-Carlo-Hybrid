@@ -418,4 +418,42 @@
             });
         });
     </script>
+    <style>
+        /* Tabel Style */
+        table {
+            font-size: 0.85rem;
+            /* Ukuran font lebih kecil */
+            padding: 0;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            /* Mengurangi padding dalam tabel */
+        }
+
+        th {
+            font-size: 1rem;
+            /* Ukuran font header lebih besar */
+        }
+
+        td {
+            font-size: 0.85rem;
+            /* Ukuran font data lebih kecil */
+        }
+
+        .table thead th {
+            /* Warna latar belakang tabel header */
+            color: white;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .table tbody tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+    </style>
+
 @endsection
