@@ -7,7 +7,7 @@
                 <h4 class="m-0 font-weight-bold text-primary">Monte Carlo | Datang</h4>
             </div>
             <div class="card-body">
-                <div class=" text-center" style=" background-color: #ecf7ff; width: 100%;">
+                <div class="text-center" style="background-color: #ecf7ff; width: 100%;">
                     {{-- ACUAN Prediksi Text --}}
                     <h3 class="text-center text-primary py-2" style="font-size: 1.5rem; font-weight: bold;">
                         | Acuan Prediksi |
@@ -52,20 +52,15 @@
                         </tbody>
                     </table>
                 </div>
-
             </div>
-
         </div>
 
         <div class="card shadow mb-4">
-
             <div class="card-body">
                 {{-- Dropdown pilih bulan --}}
                 <div class="text-center">
-
-                    <form method="GET" class=" gap-3" action="{{ route('monte-carlo.datang.index') }}">
-                        <div class=" text-center mb-3" style=" background-color: #ecf7ff; width: 100%;">
-
+                    <form method="GET" class="gap-3" action="{{ route('monte-carlo.datang.index') }}">
+                        <div class="text-center mb-3" style="background-color: #ecf7ff; width: 100%;">
                             <h5 class="text-center text-primary py-2">| Pilih Bulan: |</h5>
                         </div>
                         <select id="month" name="month" class="form-control d-inline-block">
@@ -79,16 +74,14 @@
                         <button type="submit" class="btn btn-primary mt-2 ">Tampilkan</button>
                     </form>
                 </div>
-
             </div>
         </div>
 
         {{-- Tombol untuk memilih tabel yang ditampilkan --}}
         <div class="card shadow mb-4">
             <div class="card-body">
-                <div class="text-center ">
-                    <div class=" text-center mb-3" style=" background-color: #ecf7ff; width: 100%;">
-
+                <div class="text-center">
+                    <div class="text-center mb-3" style="background-color: #ecf7ff; width: 100%;">
                         <h5 class="text-center text-primary py-2">| Proses Monte Carlo |</h5>
                     </div>
                     <button id="toggleRandomNumbers" class="btn btn-outline-primary mb-2">Angka Acak</button>
@@ -104,8 +97,7 @@
         @if (isset($selectedMonthResults['comparison']))
             <div class="card shadow mb-4" id="angkaAcakTable" style="display:block;">
                 <div class="card-body">
-                    <div class=" text-center" style=" background-color: #ecf7ff; width: 100%;">
-
+                    <div class="text-center" style="background-color: #ecf7ff; width: 100%;">
                         <h5 class="text-center py-2 text-primary">| Proses Angka Acak |</h5>
                     </div>
                     <div class="table-responsive mt-4">
@@ -141,8 +133,7 @@
         @if (isset($selectedMonthResults['comparison']))
             <div class="card shadow mb-4" id="simulasiTable" style="display:none;">
                 <div class="card-body">
-                    <div class=" text-center" style=" background-color: #ecf7ff; width: 100%;">
-
+                    <div class="text-center" style="background-color: #ecf7ff; width: 100%;">
                         <h5 class="text-center text-primary py-2">| Proses Simulasi |</h5>
                     </div>
                     <div class="table-responsive mt-4">
@@ -178,8 +169,7 @@
         @if (isset($selectedMonthResults['comparison']))
             <div class="card shadow mb-4" id="akurasTable" style="display:none;">
                 <div class="card-body">
-                    <div class=" text-center" style=" background-color: #ecf7ff; width: 100%;">
-
+                    <div class="text-center" style="background-color: #ecf7ff; width: 100%;">
                         <h5 class="text-center text-primary py-2 ">| Proses Akurasi |</h5>
                     </div>
                     <div class="table-responsive mt-4">
@@ -215,8 +205,7 @@
         @if (isset($selectedMonthResults['comparison']))
             <div class="card shadow mb-4" id="apeTable" style="display:none;">
                 <div class="card-body">
-                    <div class=" text-center" style=" background-color: #ecf7ff; width: 100%;">
-
+                    <div class="text-center" style="background-color: #ecf7ff; width: 100%;">
                         <h5 class="text-center text-primary py-2">| Proses Absolute Percentage Error (APE) |</h5>
                     </div>
                     <div class="table-responsive mt-4">
@@ -279,18 +268,17 @@
                                         </td>
                                     @endforeach
                                 </tr>
-
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         @endif
-        <div class="card shadow mb-4">
 
+        <div class="card shadow mb-4">
             <div class="card-body">
                 {{-- Always Visible Akurasi Perbandingan APE Section --}}
-                <div class=" text-center py-2" style=" background-color: #ecf7ff; width: 100%;">
+                <div class="text-center py-2" style="background-color: #ecf7ff; width: 100%;">
                     <h1 class="text-center mb-2 text-primary" style="font-size: 2rem; font-weight: bold;">| Akurasi
                         Perbandingan APE |</h1>
 
@@ -374,10 +362,6 @@
             // Function to reset button colors
             function resetButtonColors() {
                 $(".btn-outline-primary").removeClass("active");
-                $(".btn-outline-secondary").removeClass("active");
-                $(".btn-outline-info").removeClass("active");
-                $(".btn-outline-warning").removeClass("active");
-                $(".btn-outline-danger").removeClass("active");
             }
 
             // Toggle Angka Acak Table
@@ -412,48 +396,16 @@
                 $(this).addClass("active");
             });
 
-            // Show all tables
+            // Show all tables when #showAll is clicked
             $("#showAll").click(function() {
-                $(".table-responsive").show();
+                // Show specific tables (Angka Acak, Simulasi, Akurasi, APE)
+                $("#angkaAcakTable").show();
+                $("#simulasiTable").show();
+                $("#akurasTable").show();
+                $("#apeTable").show();
+                resetButtonColors(); // Reset button colors
+                $(this).addClass("active"); // Highlight the "show all" button
             });
         });
     </script>
-    <style>
-        /* Tabel Style */
-        table {
-            font-size: 0.85rem;
-            /* Ukuran font lebih kecil */
-            padding: 0;
-        }
-
-        th,
-        td {
-            padding: 8px;
-            /* Mengurangi padding dalam tabel */
-        }
-
-        th {
-            font-size: 1rem;
-            /* Ukuran font header lebih besar */
-        }
-
-        td {
-            font-size: 0.85rem;
-            /* Ukuran font data lebih kecil */
-        }
-
-        .table thead th {
-            /* Warna latar belakang tabel header */
-            color: white;
-        }
-
-        .table tbody tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        .table tbody tr:nth-child(odd) {
-            background-color: #ffffff;
-        }
-    </style>
-
 @endsection
