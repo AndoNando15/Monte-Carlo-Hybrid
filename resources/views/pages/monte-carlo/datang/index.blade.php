@@ -53,7 +53,6 @@
                     </table>
                 </div>
 
-
             </div>
 
         </div>
@@ -63,9 +62,9 @@
             <div class="card-body">
                 {{-- Dropdown pilih bulan --}}
                 <div class="text-center mt-4">
-                    <form method="GET" action="{{ route('monte-carlo.datang.index') }}">
-                        <label for="month" class="font-weight-bold">Pilih Bulan:</label>
-                        <select id="month" name="month" class="form-control d-inline-block w-auto">
+                    <form method="GET" class=" gap-3" action="{{ route('monte-carlo.datang.index') }}">
+                        <h5 class="text-center">Pilih Bulan:</h5>
+                        <select id="month" name="month" class="form-control d-inline-block">
                             <option value="">-- Pilih Bulan --</option>
                             @foreach ($monthlyResults as $month => $results)
                                 <option value="{{ $month }}" {{ $selectedMonth === $month ? 'selected' : '' }}>
@@ -79,186 +78,212 @@
 
             </div>
         </div>
+
+        {{-- Tombol untuk memilih tabel yang ditampilkan --}}
         <div class="card shadow mb-4">
-
             <div class="card-body">
-                {{-- Lihat Proses Button --}}
                 <div class="text-center mt-4">
-                    <button id="lihatProses" class="btn btn-outline-success mb-2">Lihat Proses</button>
-                </div>
+                    <h5 class="text-center mb-3">Proses Monte Carlo</h5>
 
-                {{-- Process Buttons --}}
-                <div class="text-center mt-4" id="processButtons" style="display:none;">
                     <button id="toggleRandomNumbers" class="btn btn-outline-primary mb-2">Angka Acak</button>
                     <button id="toggleSimulasi" class="btn btn-outline-primary mb-2">Simulasi</button>
                     <button id="toggleAkurasi" class="btn btn-outline-primary mb-2">Akurasi</button>
                     <button id="toggleApe" class="btn btn-outline-primary mb-2">APE</button>
-                    <button id="showAll" class="btn btn-outline-primary mb-2">Show All</button>
-                </div>
-
-                {{-- Angka Acak Table --}}
-                <div class="table-responsive mt-4" id="angkaAcakTable" style="display:none;">
-                    <table class="table table-bordered table-striped">
-                        <thead class="text-center bg-primary text-white">
-                            <tr>
-                                <th rowspan="2">No</th>
-                                <th colspan="5">Angka Acak</th>
-                            </tr>
-                            <tr>
-                                @for ($i = 1; $i <= 5; $i++)
-                                    <th>Acak-{{ $i }}</th>
-                                @endfor
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($selectedMonthResults['comparison'] ?? [] as $index => $comparison)
-                                <tr class="text-center">
-                                    <td>{{ $index + 1 }}</td>
-                                    @foreach ($comparison['random_numbers'] as $num)
-                                        <td>{{ $num }}</td>
-                                    @endforeach
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Simulasi Table --}}
-                <div class="table-responsive mt-4" id="simulasiTable" style="display:none;">
-                    <table class="table table-bordered table-striped">
-                        <thead class="text-center bg-primary text-white">
-                            <tr>
-                                <th rowspan="2">No</th>
-                                <th colspan="5">Simulasi</th>
-                            </tr>
-                            <tr>
-                                @for ($i = 1; $i <= 5; $i++)
-                                    <th>Simulasi-{{ $i }}</th>
-                                @endfor
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($selectedMonthResults['comparison'] ?? [] as $index => $comparison)
-                                <tr class="text-center">
-                                    <td>{{ $index + 1 }}</td>
-                                    @foreach ($comparison['simulations'] as $sim)
-                                        <td>{{ $sim }}</td>
-                                    @endforeach
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Akurasi Table --}}
-                <div class="table-responsive mt-4" id="akurasTable" style="display:none;">
-                    <table class="table table-bordered table-striped">
-                        <thead class="text-center bg-primary text-white">
-                            <tr>
-                                <th rowspan="2">No</th>
-                                <th colspan="5">Akurasi</th>
-                            </tr>
-                            <tr>
-                                @for ($i = 1; $i <= 5; $i++)
-                                    <th>Akurasi-{{ $i }}</th>
-                                @endfor
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($selectedMonthResults['comparison'] ?? [] as $index => $comparison)
-                                <tr class="text-center">
-                                    <td>{{ $index + 1 }}</td>
-                                    @foreach ($comparison['accuracies'] as $acc)
-                                        <td>{{ sprintf('%.2f', $acc) }}%</td>
-                                    @endforeach
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- APE Table --}}
-                <div class="table-responsive mt-4" id="apeTable" style="display:none;">
-                    <table class="table table-bordered table-striped">
-                        <thead class="text-center bg-primary text-white">
-                            <tr>
-                                <th rowspan="2">No</th>
-                                <th colspan="5">Absolute Percentage Error (APE)</th>
-                            </tr>
-                            <tr>
-                                @for ($i = 1; $i <= 5; $i++)
-                                    <th>APE-{{ $i }}</th>
-                                @endfor
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php
-                                // Initialize an array to hold the sum of each APE column
-                                $apeSums = [0, 0, 0, 0, 0];
-                                $totalRows = count($selectedMonthResults['comparison'] ?? []);
-                            @endphp
-
-                            @foreach ($selectedMonthResults['comparison'] ?? [] as $index => $comparison)
-                                <tr class="text-center">
-                                    <td>{{ $index + 1 }}</td>
-                                    @foreach ($comparison['apes'] as $apeIndex => $ape)
-                                        <td>{{ sprintf('%.2f', $ape) }}%</td>
-                                        @php
-                                            // Add each APE value to the corresponding column sum
-                                            $apeSums[$apeIndex] += $ape;
-                                        @endphp
-                                    @endforeach
-                                </tr>
-                            @endforeach
-
-                            {{-- Add a row for MAPE and Accuracy --}}
-                            <tr class="text-center">
-                                <td><strong>MAPE</strong></td>
-                                @foreach ($apeSums as $sum)
-                                    @php
-                                        $averageApe = $sum / $totalRows;
-                                        $mape = $averageApe; // MAPE is the average of APE
-                                        $accuracy = 100 - $mape; // Accuracy = 100 - MAPE
-                                    @endphp
-                                    <td>
-                                        <strong>{{ sprintf('%.2f', $mape) }}%</strong>
-                                    </td>
-                                @endforeach
-                            </tr>
-
-                            <tr class="text-center">
-                                <td><strong>Accuracy</strong></td>
-                                @foreach ($apeSums as $sum)
-                                    @php
-                                        $averageApe = $sum / $totalRows;
-                                        $accuracy = 100 - $averageApe; // Calculate accuracy
-                                    @endphp
-                                    <td>
-                                        <strong>{{ sprintf('%.2f', $accuracy) }}%</strong>
-                                    </td>
-                                @endforeach
-                            </tr>
-
-                        </tbody>
-                    </table>
+                    <button id="showAll" class="btn btn-outline-primary mb-2">Tampilkan Semuanya</button>
                 </div>
             </div>
         </div>
+
+        {{-- Angka Acak Table --}}
+        @if (isset($selectedMonthResults['comparison']))
+            <div class="card shadow mb-4" id="angkaAcakTable" style="display:block;">
+                <div class="card-body">
+                    <h5 class="text-center">Angka Acak</h5>
+                    <div class="table-responsive mt-4">
+                        <table class="table table-bordered table-striped">
+                            <thead class="text-center bg-primary text-white">
+                                <tr>
+                                    <th rowspan="2">No</th>
+                                    <th colspan="5">Angka Acak</th>
+                                </tr>
+                                <tr>
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <th>Acak-{{ $i }}</th>
+                                    @endfor
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($selectedMonthResults['comparison'] as $index => $comparison)
+                                    <tr class="text-center">
+                                        <td>{{ $index + 1 }}</td>
+                                        @foreach ($comparison['random_numbers'] as $num)
+                                            <td>{{ $num }}</td>
+                                        @endforeach
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        {{-- Simulasi Table --}}
+        @if (isset($selectedMonthResults['comparison']))
+            <div class="card shadow mb-4" id="simulasiTable" style="display:none;">
+                <div class="card-body">
+                    <h5 class="text-center">Simulasi</h5>
+                    <div class="table-responsive mt-4">
+                        <table class="table table-bordered table-striped">
+                            <thead class="text-center bg-primary text-white">
+                                <tr>
+                                    <th rowspan="2">No</th>
+                                    <th colspan="5">Simulasi</th>
+                                </tr>
+                                <tr>
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <th>Simulasi-{{ $i }}</th>
+                                    @endfor
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($selectedMonthResults['comparison'] as $index => $comparison)
+                                    <tr class="text-center">
+                                        <td>{{ $index + 1 }}</td>
+                                        @foreach ($comparison['simulations'] as $sim)
+                                            <td>{{ $sim }}</td>
+                                        @endforeach
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        {{-- Akurasi Table --}}
+        @if (isset($selectedMonthResults['comparison']))
+            <div class="card shadow mb-4" id="akurasTable" style="display:none;">
+                <div class="card-body">
+                    <h5 class="text-center">Akurasi</h5>
+                    <div class="table-responsive mt-4">
+                        <table class="table table-bordered table-striped">
+                            <thead class="text-center bg-primary text-white">
+                                <tr>
+                                    <th rowspan="2">No</th>
+                                    <th colspan="5">Akurasi</th>
+                                </tr>
+                                <tr>
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <th>Akurasi-{{ $i }}</th>
+                                    @endfor
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($selectedMonthResults['comparison'] as $index => $comparison)
+                                    <tr class="text-center">
+                                        <td>{{ $index + 1 }}</td>
+                                        @foreach ($comparison['accuracies'] as $acc)
+                                            <td>{{ sprintf('%.2f', $acc) }}%</td>
+                                        @endforeach
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        {{-- APE Table --}}
+        @if (isset($selectedMonthResults['comparison']))
+            <div class="card shadow mb-4" id="apeTable" style="display:none;">
+                <div class="card-body">
+                    <h5 class="text-center">Absolute Percentage Error (APE)</h5>
+                    <div class="table-responsive mt-4">
+                        <table class="table table-bordered table-striped">
+                            <thead class="text-center bg-primary text-white">
+                                <tr>
+                                    <th rowspan="2">No</th>
+                                    <th colspan="5">APE</th>
+                                </tr>
+                                <tr>
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <th>APE-{{ $i }}</th>
+                                    @endfor
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    // Initialize an array to hold the sum of each APE column
+                                    $apeSums = [0, 0, 0, 0, 0];
+                                    $totalRows = count($selectedMonthResults['comparison']);
+                                @endphp
+
+                                @foreach ($selectedMonthResults['comparison'] as $index => $comparison)
+                                    <tr class="text-center">
+                                        <td>{{ $index + 1 }}</td>
+                                        @foreach ($comparison['apes'] as $apeIndex => $ape)
+                                            <td>{{ sprintf('%.2f', $ape) }}%</td>
+                                            @php
+                                                // Add each APE value to the corresponding column sum
+                                                $apeSums[$apeIndex] += $ape;
+                                            @endphp
+                                        @endforeach
+                                    </tr>
+                                @endforeach
+
+                                {{-- Add a row for MAPE and Accuracy --}}
+                                <tr class="text-center">
+                                    <td><strong>MAPE</strong></td>
+                                    @foreach ($apeSums as $sum)
+                                        @php
+                                            $averageApe = $sum / $totalRows;
+                                            $mape = $averageApe; // MAPE is the average of APE
+                                            $accuracy = 100 - $mape; // Accuracy = 100 - MAPE
+                                        @endphp
+                                        <td>
+                                            <strong>{{ sprintf('%.2f', $mape) }}%</strong>
+                                        </td>
+                                    @endforeach
+                                </tr>
+
+                                <tr class="text-center">
+                                    <td><strong>Accuracy</strong></td>
+                                    @foreach ($apeSums as $sum)
+                                        @php
+                                            $averageApe = $sum / $totalRows;
+                                            $accuracy = 100 - $averageApe; // Calculate accuracy
+                                        @endphp
+                                        <td>
+                                            <strong>{{ sprintf('%.2f', $accuracy) }}%</strong>
+                                        </td>
+                                    @endforeach
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endif
         <div class="card shadow mb-4">
 
             <div class="card-body">
                 {{-- Always Visible Akurasi Perbandingan APE Section --}}
-                <h1 class="text-center mb-4" style="font-size: 2rem; font-weight: bold; color: #4CAF50;">Akurasi
-                    Perbandingan APE</h1>
+                <div class=" text-center py-2" style=" background-color: #ecf7ff; width: 100%; padding:  ;">
+                    <h1 class="text-center mb-2" style="font-size: 2rem; font-weight: bold; color: #2196F3;">Akurasi
+                        Perbandingan APE</h1>
 
-                <h5 class="text-center mb-5" style="font-size: 1.25rem; color: #555;">
-                    Rata-Rata Akurasi Prediksi:
-                    <span class="font-weight-bold" style="color: #2196F3;">
-                        {{ sprintf('%.2f', $selectedMonthResults['accuracy'] ?? 0) }}%</span> & MAPE:
-                    <span class="font-weight-bold" style="color: #f44336;">
-                        {{ sprintf('%.2f', $selectedMonthResults['mape'] ?? 0) }}%</span>
-                </h5>
-
+                    <h5 class="text-center" style="font-size: 1.25rem; color: #555;">
+                        Rata-Rata Akurasi Prediksi:
+                        <span class="font-weight-bold" style="color: #008cff;">
+                            {{ sprintf('%.2f', $selectedMonthResults['accuracy'] ?? 0) }}%</span> & MAPE:
+                        <span class="font-weight-bold" style="color: #f44336;">
+                            {{ sprintf('%.2f', $selectedMonthResults['mape'] ?? 0) }}%</span>
+                    </h5>
+                </div>
                 {{-- Tabel Prediksi, Data Asli, Selisih, Error, dan Akurasi --}}
                 <div class="table-responsive mt-4">
                     <table class="table table-bordered table-striped text-center"
@@ -336,12 +361,6 @@
                 $(".btn-outline-warning").removeClass("active");
                 $(".btn-outline-danger").removeClass("active");
             }
-
-            // Lihat Proses button to show other buttons
-            $("#lihatProses").click(function() {
-                $("#processButtons").toggle();
-                hideAllTables();
-            });
 
             // Toggle Angka Acak Table
             $("#toggleRandomNumbers").click(function() {
