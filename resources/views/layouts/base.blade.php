@@ -162,7 +162,12 @@
                     </div>
                 </div>
             </li>
-
+            <li class="nav-item {{ request()->routeIs('hasil-akhir.index') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('hasil-akhir.index') }}">
+                    <i class="fas fa-fw fa-user"></i>
+                    <span>Hasil Akhir</span>
+                </a>
+            </li>
 
             <!-- Sidebar Toggler (Sidebar) -->
             {{-- <div class="text-center d-none d-md-inline">

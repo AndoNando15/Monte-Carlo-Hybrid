@@ -204,6 +204,16 @@ class DatangControllers extends Controller
             });
 
         $averageLevelAt = $datasets_filtered->take(20)->avg('level_at');
+        // Buat array forecast murni dari Desember (hanya angka saja)
+        $onlyForecastDesember = collect($datasets_filtered)
+            ->filter(fn($d) => Carbon::parse($d->tanggal_iso)->month === 12)
+            ->values()
+            ->pluck('forecast')
+            ->map(fn($v) => round($v)) // optional: pembulatan
+            ->toArray();
+
+        // Simpan ke session
+        session(['forecast_desember_only' => $onlyForecastDesember]);
 
         return view('pages.smothing.datang.index', compact(
             'datasets_filtered',

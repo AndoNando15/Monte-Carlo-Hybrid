@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DataAdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DatasetController;
+use App\Http\Controllers\HasilAkhirController;
 use App\Http\Controllers\MonteCarlo\BerangkatController;
 use App\Http\Controllers\MonteCarlo\DatangController;
 use App\Http\Controllers\Smothing\BerangkatControllers;
@@ -44,6 +45,7 @@ Route::middleware('auth')->group(function () {
     // Smothing
     Route::resource('smothing-datang', DatangControllers::class);
     Route::resource('smothing-berangkat', BerangkatControllers::class);
+    Route::resource('hasil-akhir', HasilAkhirController::class);
 
 });
 
