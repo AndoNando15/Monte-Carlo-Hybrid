@@ -54,6 +54,32 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <div class="text-center" style="background-color: #ecf7ff;">
+                                <h4 class="text-primary font-weight-bold py-2">| Rekap Akurasi dan MAPE |</h4>
+                            </div>
+                            <table class="table table-sm table-bordered table-striped text-center"
+                                style="font-size: 0.9rem;">
+                                <thead class="bg-primary text-white">
+                                    <tr>
+                                        <th>Kategori</th>
+                                        <th>MAPE (%)</th>
+                                        <th>Akurasi (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($rekapAkurasi as $rekap)
+                                        <tr>
+                                            <td>{{ $rekap['kategori'] }}</td>
+                                            <td>{{ number_format($rekap['mape'], 2) }}%</td>
+                                            <td>{{ number_format($rekap['akurasi'], 2) }}%</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
                 </div>
             </div>

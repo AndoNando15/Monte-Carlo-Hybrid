@@ -37,9 +37,51 @@ class HasilAkhirController extends Controller
             ];
         });
 
+        // Inisialisasi fungsi bantu
+        function calculateMape($actual, $forecast)
+        {
+            $errors = [];
+            foreach ($actual as $i => $act) {
+                $pred = $forecast[$i] ?? null;
+                if ($act != 0 && $pred !== null) {
+                    $ape = abs($act - $pred) / $act;
+                    $errors[] = $ape;
+                }
+            }
+            return count($errors) > 0 ? array_sum($errors) / count($errors) * 100 : 0;
+        }
+
+        // Hitung MAPE dan Akurasi
+        $actualDatang = $desemberData->pluck('datang')->toArray();
+        $actualBerangkat = $desemberData->pluck('berangkat')->toArray();
+
+        $rekapAkurasi = [
+            [
+                'kategori' => 'Monte Carlo - Datang',
+                'mape' => calculateMape($actualDatang, $monteCarloForecastDatang),
+            ],
+            [
+                'kategori' => 'Monte Carlo - Berangkat',
+                'mape' => calculateMape($actualBerangkat, $monteCarloForecastBerangkat),
+            ],
+            [
+                'kategori' => 'TES - Datang',
+                'mape' => calculateMape($actualDatang, $tesForecastsDatang),
+            ],
+            [
+                'kategori' => 'TES - Berangkat',
+                'mape' => calculateMape($actualBerangkat, $tesForecastsBerangkat),
+            ],
+        ];
+
+        // Tambahkan akurasi
+        foreach ($rekapAkurasi as &$row) {
+            $row['akurasi'] = 100 - $row['mape'];
+        }
 
         return view('pages.hasil-akhir.index', [
-            'finalData' => $finalData
+            'finalData' => $finalData,
+            'rekapAkurasi' => $rekapAkurasi,
         ]);
     }
 }
