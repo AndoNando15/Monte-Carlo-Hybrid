@@ -10,8 +10,14 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <thead>
+                    <div class=" text-center" style=" background-color: #ecf7ff; width: 100%;">
+                        <h3 class="text-center text-primary py-2" style="font-size: 1.5rem; font-weight: bold;">
+                            | HASIL AKHIR |
+                        </h3>
+                    </div>
+                    <table class="table table-bordered table-striped"
+                        style="font-size: 0.85rem; width: 100%; margin: 0 auto;">
+                        <thead class="text-center bg-primary text-white">
                             <tr class="text-center">
                                 <th>No</th>
                                 <th>Aktual Datang</th>
