@@ -19,18 +19,20 @@ class HasilAkhirController extends Controller
 
         // Ambil forecast TES dari session jika tersedia
         $tesForecasts = session('forecast_desember_only', []);
+        $monteCarloForecast = session('montecarlo_forecast_desember', []);
 
         // Gabungkan semua ke satu array yang bisa diproses di view
-        $finalData = $desemberData->map(function ($data, $index) use ($tesForecasts) {
+        $finalData = $desemberData->map(function ($data, $index) use ($tesForecasts, $monteCarloForecast) {
+
             return [
                 'id' => $index + 1,
                 'tanggal' => $data->tanggal,
                 'datang' => $data->datang,
                 'berangkat' => $data->berangkat,
-                'prediksi_montecarlo_datang' => $data->datang * 1.1, // contoh dummy
-                'prediksi_montecarlo_berangkat' => $data->berangkat * 1.1, // contoh dummy
+                'prediksi_montecarlo_datang' => $monteCarloForecast[$index] ?? null,
+                'prediksi_montecarlo_berangkat' => null, // jika nanti ada
                 'prediksi_tes_datang' => $tesForecasts[$index] ?? null,
-                'prediksi_tes_berangkat' => null // tambahkan jika ada nanti
+                'prediksi_tes_berangkat' => null
             ];
         });
 

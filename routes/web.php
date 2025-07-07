@@ -30,13 +30,13 @@ Route::middleware('auth')->group(function () {
 
     // Monte Carlo
     // Route::resource('monteCarlo-datang', DatangController::class);
-    Route::resource('/monte-carlo-datang?month=Dec-2023', DatangController::class);
+    Route::resource('/monte-carlo-datang?month=2023-12', DatangController::class);
     Route::get('/monteCarlo-datang/refresh', [DatangController::class, 'refresh']);
     Route::get('/montecarlo/refresh-all', [DatangController::class, 'refreshAll'])->name('montecarlo.refreshAll');
     Route::get('/monte-carlo-datang', [DatangController::class, 'index'])->name('monte-carlo.datang.index');
 
     // Route::resource('monteCarlo-datang', DatangController::class);
-    Route::resource('/monte-carlo-berangkat?month=Dec-2023', BerangkatController::class);
+    Route::resource('/monte-carlo-berangkat?month=2023-12', BerangkatController::class);
     Route::get('/monteCarlo-datang/refresh', [BerangkatController::class, 'refresh']);
     Route::get('/montecarlo/refresh-all', [BerangkatController::class, 'refreshAll'])->name('montecarlo.refreshAll');
     Route::get('/monte-carlo-berangkat', [BerangkatController::class, 'index'])->name('monte-carlo.berangkat.index');

@@ -26,7 +26,9 @@
                                     <td>{{ $row['id'] }}</td>
                                     <td>{{ \Carbon\Carbon::parse($row['tanggal'])->format('d-m-Y') }}</td>
                                     <td>{{ $row['datang'] }}</td>
-                                    <td>{{ number_format($row['prediksi_montecarlo_datang'], 0) }}</td>
+                                    <td>
+                                        {{ $row['prediksi_montecarlo_datang'] !== null ? number_format($row['prediksi_montecarlo_datang'], 0) : '-' }}
+                                    </td>
                                     <td>
                                         {{ $row['prediksi_tes_datang'] !== null ? number_format($row['prediksi_tes_datang'], 0) : '-' }}
                                     </td>

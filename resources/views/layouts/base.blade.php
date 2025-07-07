@@ -136,9 +136,9 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Prediksi Monte Carlo:</h6>
                         <a class="collapse-item {{ request()->is('monteCarlo-datang') ? 'active' : '' }}"
-                            href="{{ url('/monte-carlo-datang?month=Dec-2023') }}">Datang</a>
+                            href="{{ url('/monte-carlo-datang?month=2023-12') }}">Datang</a>
                         <a class="collapse-item {{ request()->is('monteCarlo-berangkat') ? 'active' : '' }}"
-                            href="{{ url('/monte-carlo-berangkat?month=Dec-2023') }}">Berangkat</a>
+                            href="{{ url('/monte-carlo-berangkat?month=2023-12') }}">Berangkat</a>
                     </div>
                 </div>
             </li>

@@ -154,6 +154,14 @@ class DatangController extends Controller
         if ($selectedMonth && isset($monthlyResults[$selectedMonth])) {
             $selectedMonthResults = $monthlyResults[$selectedMonth];
         }
+        // Simpan prediksi terbaik Desember ke session
+        $desemberKey = collect($monthlyResults)->keys()->filter(function ($key) {
+            return \Carbon\Carbon::parse($key)->month === 12;
+        })->first();
+
+        if ($desemberKey && isset($monthlyResults[$desemberKey]['best_predictions'])) {
+            session(['montecarlo_forecast_desember' => $monthlyResults[$desemberKey]['best_predictions']]);
+        }
 
         return view('pages.monte-carlo.datang.index', compact(
             'groupedDatasets',
