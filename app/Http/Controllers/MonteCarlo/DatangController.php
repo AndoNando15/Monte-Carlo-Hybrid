@@ -17,7 +17,9 @@ class DatangController extends Controller
         $monthlyResults = [];
 
         if (!$datangData->isEmpty()) {
-            // Do not sort $datangData to maintain original order
+            // Sort datangData to ensure datang is ordered from 0 upwards
+            $datangData = $datangData->sortBy('datang');  // Sorting by 'datang' in ascending order
+
             $frequencies = $datangData->groupBy('datang')->map(fn($group) => $group->count());
 
             $total = $frequencies->sum();

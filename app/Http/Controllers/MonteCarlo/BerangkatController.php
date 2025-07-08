@@ -17,7 +17,9 @@ class BerangkatController extends Controller
         $monthlyResults = [];
 
         if (!$berangkatData->isEmpty()) {
-            // Do not sort $berangkatData to maintain original order
+            // Sort berangkatData to ensure berangkat is ordered from 0 upwards
+            $berangkatData = $berangkatData->sortBy('berangkat');  // Sorting by 'berangkat' in ascending order
+
             $frequencies = $berangkatData->groupBy('berangkat')->map(fn($group) => $group->count());
 
             $total = $frequencies->sum();
@@ -154,7 +156,8 @@ class BerangkatController extends Controller
         if ($selectedMonth && isset($monthlyResults[$selectedMonth])) {
             $selectedMonthResults = $monthlyResults[$selectedMonth];
         }
-        // Simpan prediksi terbaik Desember ke session
+
+        // Save the best predictions for December to session
         $desemberKey = collect($monthlyResults)->keys()->filter(function ($key) {
             return \Carbon\Carbon::parse($key)->month === 12;
         })->first();
@@ -183,5 +186,6 @@ class BerangkatController extends Controller
 
         return ($count > 0) ? $totalApe / $count : 0;
     }
+
 
 }
