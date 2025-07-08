@@ -84,4 +84,17 @@ class HasilAkhirController extends Controller
             'rekapAkurasi' => $rekapAkurasi,
         ]);
     }
+    function calculateAkurasiVersiBlade($actuals, $forecasts)
+    {
+        $akurasiList = [];
+        foreach ($actuals as $i => $act) {
+            $f = $forecasts[$i] ?? null;
+            if ($act != null && $f != null && ($act > 0 || $f > 0)) {
+                $akurasi = min($act, $f) / max($act, $f);
+                $akurasiList[] = $akurasi;
+            }
+        }
+        return count($akurasiList) > 0 ? array_sum($akurasiList) / count($akurasiList) * 100 : 0;
+    }
+
 }

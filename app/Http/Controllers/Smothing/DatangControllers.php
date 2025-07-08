@@ -83,38 +83,49 @@ class DatangControllers extends Controller
                 $levelPrev = $previousData->level_at ?? 0;
                 $trendPrev = $previousData->trend_t ?? 0;
 
-                // Ambil seasonal dari data indeks tetap 0-19
                 $seasonalFixedIndex = $datasets_filtered->take(20)->pluck('seasonal_st')->values();
                 $seasonalIndex = ($index - 20) % 20;
-                $seasonalFromFixed = $seasonalFixedIndex[$seasonalIndex] ?? 1;
+                $seasonalFromFixed = $seasonalFixedIndex[$seasonalIndex] ?? 0;
 
                 if ($seasonalFromFixed != 0) {
                     $data->level_at = $alpha * ($data->datang / $seasonalFromFixed) + (1 - $alpha) * ($levelPrev + $trendPrev);
                 } else {
-                    $data->level_at = $levelPrev + $trendPrev;
+                    $data->level_at = 0;
                 }
             }
-
 
             if ($index > 19 && $month >= 2 && $month <= 11) {
                 $beta = 0.05;
                 $levelNow = $data->level_at ?? 0;
                 $levelPrev = $previousData->level_at ?? 0;
                 $trendPrev = $previousData->trend_t ?? 0;
+
                 $data->trend_t = $beta * ($levelNow - $levelPrev) + (1 - $beta) * $trendPrev;
             }
 
             if ($index < 20) {
+                // Use initial data for the first 20 records
                 $data->seasonal_st = ($data->datang > 0) ? $data->datang / $data->level_at : 0;
             } else {
                 $gamma = 0.1;
-                $prevSeasonal = $previousData->seasonal_st ?? 1;
-                $levelAtNow = $data->level_at ?? 1;
-                $datangNow = $data->datang ?? 1;
+
+                // For records after the first 20 records, use the corresponding seasonal value for that index
+                $seasonalIndex = $index - 20; // Adjust the index to use the subsequent seasonal values
+
+                // Get the corresponding seasonal value from the first 20 records
+                $correspondingSeasonal = $datasets_filtered[$seasonalIndex]->seasonal_st ?? 0;
+
+                $levelAtNow = $data->level_at ?? 0;
+                $datangNow = $data->datang ?? 0;
+
+                // Calculate seasonal_st based on the corresponding seasonal value from the dataset
                 $data->seasonal_st = ($levelAtNow != 0)
-                    ? $gamma * ($datangNow / $levelAtNow) + (1 - $gamma) * $prevSeasonal
-                    : $prevSeasonal;
+                    ? $gamma * ($datangNow / $levelAtNow) + (1 - $gamma) * $correspondingSeasonal
+                    : 0;
             }
+
+
+
 
             if ($index >= 20) {
                 $seasonal_base = $datasets_filtered->take(20)->values();
@@ -124,24 +135,36 @@ class DatangControllers extends Controller
                 $trendPrev = $previousData->trend_t ?? 0;
 
                 $seasonalIndex = ($index - 20) % 20;
-                $seasonal = $seasonal_base[$seasonalIndex]->seasonal_st ?? 1;
+                $seasonal = $seasonal_base[$seasonalIndex]->seasonal_st ?? 0;
 
-                $data->forecast = ($levelPrev + 1 * $trendPrev) * $seasonal;
+                // ✅ Jika levelPrev atau seasonal = 0, forecast tidak dihitung → tetap 0
+                if ($levelPrev == 0 || $seasonal == 0) {
+                    $data->forecast = 0;
+                } else {
+                    $data->forecast = ($levelPrev + $trendPrev) * $seasonal;
+                }
             }
 
 
             $actual = $data->datang ?? 0;
             $forecast = $data->forecast ?? null;
 
-            if (!is_null($forecast) && $actual != 0) {
+            if (!is_null($forecast)) {
                 $data->error = $actual - $forecast;
                 $data->absolute_error = abs($data->error);
                 $data->squared_error = pow($data->error, 2);
-                $data->absolute_percentage_error = abs($data->error) / $actual;
+
+                // Hitung APE hanya jika actual ≠ 0 dan forecast bukan hasil fallback
+                if ($actual != 0 && ($data->level_at ?? 0) != 0 && ($data->seasonal_st ?? 0) != 0) {
+                    $data->absolute_percentage_error = abs($data->error) / $actual;
+                } else {
+                    $data->absolute_percentage_error = 0;
+                }
             }
 
             $data->tanggal_iso = $carbonDate->format('Y-m-d');
         }
+
 
         // === Ambil nilai level dan trend terakhir November
         $novemberLastData = $datasets_filtered->filter(fn($d) => Carbon::parse($d->tanggal)->month === 11)->last();

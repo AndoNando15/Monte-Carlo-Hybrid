@@ -86,13 +86,12 @@ class BerangkatControllers extends Controller
                 // Ambil seasonal dari data indeks tetap 0-19
                 $seasonalFixedIndex = $datasets_filtered->take(20)->pluck('seasonal_st')->values();
                 $seasonalIndex = ($index - 20) % 20;
-                $seasonalFromFixed = $seasonalFixedIndex[$seasonalIndex] ?? 1;
+                $seasonalFromFixed = $seasonalFixedIndex[$seasonalIndex] ?? 0;
 
-                if ($seasonalFromFixed != 0) {
-                    $data->level_at = $alpha * ($data->berangkat / $seasonalFromFixed) + (1 - $alpha) * ($levelPrev + $trendPrev);
-                } else {
-                    $data->level_at = $levelPrev + $trendPrev;
-                }
+                $data->level_at = ($seasonalFromFixed != 0)
+                    ? $alpha * ($data->datang / $seasonalFromFixed) + (1 - $alpha) * ($levelPrev + $trendPrev)
+                    : 0;
+
             }
 
 
