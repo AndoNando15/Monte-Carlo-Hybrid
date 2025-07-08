@@ -84,7 +84,7 @@ class DatangControllers extends Controller
                 $trendPrev = $previousData->trend_t ?? 0;
 
                 $seasonalFixedIndex = $datasets_filtered->take(20)->pluck('seasonal_st')->values();
-                $seasonalIndex = ($index - 20) % 20;
+                $seasonalIndex = $index % 20;
                 $seasonalFromFixed = $seasonalFixedIndex[$seasonalIndex] ?? 0;
 
                 if ($seasonalFromFixed != 0) {
@@ -104,21 +104,19 @@ class DatangControllers extends Controller
             }
 
             if ($index < 20) {
-                // Use initial data for the first 20 records
-                $data->seasonal_st = ($data->datang > 0) ? $data->datang / $data->level_at : 0;
+                $data->seasonal_st = ($data->datang > 0 && $data->level_at != 0)
+                    ? $data->datang / $data->level_at
+                    : 0;
             } else {
                 $gamma = 0.1;
 
-                // For records after the first 20 records, use the corresponding seasonal value for that index
-                $seasonalIndex = $index - 20; // Adjust the index to use the subsequent seasonal values
-
-                // Get the corresponding seasonal value from the first 20 records
-                $correspondingSeasonal = $datasets_filtered[$seasonalIndex]->seasonal_st ?? 0;
+                // Cari seasonal dari index ke-(t-p)
+                $correspondingIndex = $index - 20;
+                $correspondingSeasonal = $datasets_filtered[$correspondingIndex]->seasonal_st ?? 0;
 
                 $levelAtNow = $data->level_at ?? 0;
                 $datangNow = $data->datang ?? 0;
 
-                // Calculate seasonal_st based on the corresponding seasonal value from the dataset
                 $data->seasonal_st = ($levelAtNow != 0)
                     ? $gamma * ($datangNow / $levelAtNow) + (1 - $gamma) * $correspondingSeasonal
                     : 0;
@@ -134,16 +132,16 @@ class DatangControllers extends Controller
                 $levelPrev = $previousData->level_at ?? 0;
                 $trendPrev = $previousData->trend_t ?? 0;
 
-                $seasonalIndex = ($index - 20) % 20;
+                $seasonalIndex = $index % 20;
                 $seasonal = $seasonal_base[$seasonalIndex]->seasonal_st ?? 0;
 
-                // ✅ Jika levelPrev atau seasonal = 0, forecast tidak dihitung → tetap 0
                 if ($levelPrev == 0 || $seasonal == 0) {
                     $data->forecast = 0;
                 } else {
                     $data->forecast = ($levelPrev + $trendPrev) * $seasonal;
                 }
             }
+
 
 
             $actual = $data->datang ?? 0;
