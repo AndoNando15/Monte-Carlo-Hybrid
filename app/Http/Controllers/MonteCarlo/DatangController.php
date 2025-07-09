@@ -178,6 +178,16 @@ class DatangController extends Controller
         if ($selectedMonth && isset($monthlyResults[$selectedMonth])) {
             $selectedMonthResults = $monthlyResults[$selectedMonth];
         }
+        // In DatangController, store best prediction for December
+        $desemberKeyDatang = collect($monthlyResults)->keys()->filter(function ($key) {
+            return \Carbon\Carbon::parse($key)->month === 12;
+        })->first();
+
+        if ($desemberKeyDatang && isset($monthlyResults[$desemberKeyDatang]['best_predictions'])) {
+            // Store the 'datang' forecast for December
+            session(['montecarlo_forecast_datang' => $monthlyResults[$desemberKeyDatang]['best_predictions']]);
+        }
+
 
         // Save or update the AkurasiMape record for Datang (ID = 1)
         $akurasiMape = AkurasiMape::find(1);

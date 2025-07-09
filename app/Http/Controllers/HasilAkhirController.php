@@ -1,11 +1,11 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Dataset;
 use App\Models\AkurasiMape;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class HasilAkhirController extends Controller
 {
@@ -25,8 +25,14 @@ class HasilAkhirController extends Controller
         // Get forecasts from the session
         $tesForecastsDatang = session('forecast_desember_only', []);
         $tesForecastsBerangkat = session('forecast_berangkat_only', []);
-        $monteCarloForecastDatang = session('montecarlo_forecast_desember', []);
+        // Fetch forecasts from the session
+        $monteCarloForecastDatang = session('montecarlo_forecast_datang', []); // Correct session key for 'datang'
         $monteCarloForecastBerangkat = session('montecarlo_forecast_berangkat', []);
+
+
+        // Debugging: Log session values for monitoring
+        Log::info('Forecast for Datang: ', session('montecarlo_forecast_desember', []));
+        Log::info('Forecast for Berangkat: ', session('montecarlo_forecast_berangkat', []));
 
         // Combine all data into a final array for the view
         $finalData = $desemberData->map(function ($data, $index) use ($tesForecastsDatang, $tesForecastsBerangkat, $monteCarloForecastDatang, $monteCarloForecastBerangkat) {
@@ -35,10 +41,10 @@ class HasilAkhirController extends Controller
                 'tanggal' => $data->tanggal,
                 'datang' => $data->datang,
                 'berangkat' => $data->berangkat,
-                'prediksi_montecarlo_datang' => $monteCarloForecastDatang[$index] ?? null,
-                'prediksi_tes_datang' => $tesForecastsDatang[$index] ?? null,
-                'prediksi_montecarlo_berangkat' => $monteCarloForecastBerangkat[$index] ?? null,
-                'prediksi_tes_berangkat' => $tesForecastsBerangkat[$index] ?? null
+                'prediksi_montecarlo_datang' => $monteCarloForecastDatang[$index] ?? 'No Data',
+                'prediksi_tes_datang' => $tesForecastsDatang[$index] ?? 'No Data',
+                'prediksi_montecarlo_berangkat' => $monteCarloForecastBerangkat[$index] ?? 'No Data',
+                'prediksi_tes_berangkat' => $tesForecastsBerangkat[$index] ?? 'No Data'
             ];
         });
 

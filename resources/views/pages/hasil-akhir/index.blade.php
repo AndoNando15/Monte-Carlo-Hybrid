@@ -35,20 +35,20 @@
                                     <td>{{ $row['id'] }}</td>
                                     <td>{{ $row['datang'] }}</td>
                                     <td>
-                                        {{ $row['prediksi_montecarlo_datang'] !== null ? number_format($row['prediksi_montecarlo_datang'], 0) : '-' }}
+                                        {{ $row['prediksi_montecarlo_datang'] !== 'No Data' ? number_format($row['prediksi_montecarlo_datang'], 0) : '-' }}
                                     </td>
                                     <td>
-                                        {{ $row['prediksi_tes_datang'] !== null ? number_format($row['prediksi_tes_datang'], 0) : '-' }}
+                                        {{ $row['prediksi_tes_datang'] !== 'No Data' ? number_format($row['prediksi_tes_datang'], 0) : '-' }}
                                     </td>
 
                                     {{-- Kolom berangkat --}}
                                     <td>{{ $row['id'] }}</td>
                                     <td>{{ $row['berangkat'] }}</td>
                                     <td>
-                                        {{ $row['prediksi_montecarlo_berangkat'] !== null ? number_format($row['prediksi_montecarlo_berangkat'], 0) : '-' }}
+                                        {{ $row['prediksi_montecarlo_berangkat'] !== 'No Data' ? number_format($row['prediksi_montecarlo_berangkat'], 0) : '-' }}
                                     </td>
                                     <td>
-                                        {{ $row['prediksi_tes_berangkat'] !== null ? number_format($row['prediksi_tes_berangkat'], 0) : '-' }}
+                                        {{ $row['prediksi_tes_berangkat'] !== 'No Data' ? number_format($row['prediksi_tes_berangkat'], 0) : '-' }}
                                     </td>
                                 </tr>
                             @endforeach
