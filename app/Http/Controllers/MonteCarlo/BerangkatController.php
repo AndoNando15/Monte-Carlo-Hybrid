@@ -41,10 +41,16 @@ class BerangkatController extends Controller
                 $probability = $count / $total;
                 $cumulative += $probability;
 
+                // Calculate the minimum and maximum for the range
                 $min = $previousMax;
-                $max = (round($cumulative, 4) == 1.0000) ? 100 : ceil(($cumulative * 100) - 1);
+
+                // Apply rounding down (rundown) to the cumulative probability multiplied by 100
+                $max = (round($cumulative, 4) == 1.0000) ? 100 : floor(($cumulative * 100));  // Rundown to the nearest integer
+
+                // Update previousMax for the next iteration
                 $previousMax = $max + 1;
 
+                // Push the calculated values into the grouped dataset
                 $groupedDatasets->push([
                     'berangkat' => $value,
                     'frekuensi' => $count,
@@ -53,12 +59,14 @@ class BerangkatController extends Controller
                     'range' => $min . ' - ' . $max,
                 ]);
 
+                // Add the range data for future reference
                 $rangeMapping[] = [
                     'min' => $min,
                     'max' => $max,
                     'berangkat' => $value,
                 ];
             }
+
 
             // Group data by month, sort the keys (months) in ascending order
             $groupedByMonth = $berangkatData->groupBy(fn($dataset) => Carbon::parse($dataset->tanggal)->format('Y-m'))->sortKeys();

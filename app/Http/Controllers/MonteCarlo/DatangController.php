@@ -39,10 +39,21 @@ class DatangController extends Controller
                 $probability = $count / $total;
                 $cumulative += $probability;
 
+                // Calculate the minimum and maximum for the range
                 $min = $previousMax;
-                $max = (round($cumulative, 4) == 1.0000) ? 100 : ceil(($cumulative * 100) - 1);
+
+                // Apply rundown: round down the cumulative probability multiplied by 100
+                $max = (round($cumulative, 4) == 1.0000) ? 100 : floor($cumulative * 100);  // Rundown to the nearest integer
+
+                // Ensure the range does not exceed 100
+                if ($max > 100) {
+                    $max = 100;
+                }
+
+                // Update previousMax for the next iteration
                 $previousMax = $max + 1;
 
+                // Push the calculated values into the grouped dataset
                 $groupedDatasets->push([
                     'datang' => $value,
                     'frekuensi' => $count,
@@ -51,12 +62,14 @@ class DatangController extends Controller
                     'range' => $min . ' - ' . $max,
                 ]);
 
+                // Add the range data for future reference
                 $rangeMapping[] = [
                     'min' => $min,
                     'max' => $max,
                     'datang' => $value,
                 ];
             }
+
 
             // Group data by month, sort the keys (months) in ascending order
             $groupedByMonth = $datangData->groupBy(fn($dataset) => Carbon::parse($dataset->tanggal)->format('Y-m'))->sortKeys();
