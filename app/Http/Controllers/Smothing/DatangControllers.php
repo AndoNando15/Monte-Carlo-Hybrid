@@ -13,6 +13,7 @@ class DatangControllers extends Controller
     public function index()
     {
         $datasets = Dataset::orderBy('tanggal')->get();
+        $maxDatangValue = $datasets->max('datang');
 
         $datasets_filtered = $datasets
             ->groupBy(function ($data) {
@@ -136,9 +137,10 @@ class DatangControllers extends Controller
 
                 $levelPrev = $previousData->level_at ?? 0;
                 $trendPrev = $previousData->trend_t ?? 0;
-                $seasonalFixedIndex = $datasets_filtered->pluck('seasonal_st')->values();  // Take all data, not just the first 20
-                $seasonalIndex = $index % 20;
-                $seasonalFromFixed = $seasonalFixedIndex[$seasonalIndex] ?? 0;
+                // Cari seasonal dari index ke-(t-p)
+                $correspondingIndex = $index - 20;
+                // Use the seasonal index from the previous record (index-1) for the calculation
+                $seasonalFromFixed = $datasets_filtered[$correspondingIndex]->seasonal_st ?? 0;  // Get seasonal from previous record
 
                 if ($levelPrev == 0 || $seasonalFromFixed == 0) {
                     $data->forecast = 0;
@@ -188,7 +190,18 @@ class DatangControllers extends Controller
             $seasonal = $seasonal_november[$seasonalIndex]->seasonal_st ?? 1;
 
             $data->trend_t = $trendNovemberLast * $desemberUrutan;
-            $data->forecast = ($levelNovemberLast + $desemberUrutan * $trendNovemberLast) * $seasonal;
+            $forecast = ($levelNovemberLast + $desemberUrutan * $trendNovemberLast) * $seasonal;
+
+            // Batasi forecast Desember:
+// - jika forecast < 0 → jadikan 0
+// - jika forecast > maxDatangValue → batasi ke maxDatangValue
+            if ($forecast < 0) {
+                $forecast = 0;
+            } elseif ($forecast > $maxDatangValue) {
+                $forecast = $maxDatangValue;
+            }
+
+            $data->forecast = $forecast;
             $data->level_at = null; // Hidden in view
             $data->seasonal_st = null; // Hidden in view
 
