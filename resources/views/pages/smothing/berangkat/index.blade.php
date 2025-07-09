@@ -215,7 +215,7 @@
                             </span> --}}
                         MAPE:
                         <span class="font-weight-bold" style="color: #f44336;">
-                            {{ isset($averageApe) ? number_format(($averageApe * 100) / 100, 4) . '%' : '-' }}
+                            {{ isset($averageApe) ? number_format(($averageApe * 100) / 100, 2) . '%' : '-' }}
                         </span>
                     </h5>
                 </div>
