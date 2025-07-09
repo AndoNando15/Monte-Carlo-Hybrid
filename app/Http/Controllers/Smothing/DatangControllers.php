@@ -144,6 +144,7 @@ class DatangControllers extends Controller
                     $data->forecast = 0;
                 } else {
                     $data->forecast = ($levelPrev + $trendPrev) * $seasonalFromFixed;
+
                 }
             }
 

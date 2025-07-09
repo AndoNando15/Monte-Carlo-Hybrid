@@ -15,12 +15,23 @@ class DatangController extends Controller
         $groupedDatasets = collect();
         $rangeMapping = [];
         $monthlyResults = [];
-
+        // Buat dataset terpisah khusus Acuan Prediksi
+        $datangDataForAcuan = $datangData->filter(function ($item) {
+            $monthNum = intval(Carbon::parse($item->tanggal)->format('m'));
+            return $monthNum >= 1 && $monthNum <= 11;
+        });
         if (!$datangData->isEmpty()) {
             // Sort datangData to ensure datang is ordered from 0 upwards
             $datangData = $datangData->sortBy('datang');  // Sorting by 'datang' in ascending order
+            $datangDataForAcuan = $datangData->filter(function ($item) {
+                $monthNum = intval(Carbon::parse($item->tanggal)->format('m'));
+                return $monthNum >= 1 && $monthNum <= 11;
+            });
 
-            $frequencies = $datangData->groupBy('datang')->map(fn($group) => $group->count());
+
+            $frequencies = $datangDataForAcuan->groupBy('datang')->map(fn($group) => $group->count());
+
+
 
             $total = $frequencies->sum();
             $cumulative = 0;

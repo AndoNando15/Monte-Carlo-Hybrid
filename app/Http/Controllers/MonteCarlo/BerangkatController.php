@@ -15,12 +15,23 @@ class BerangkatController extends Controller
         $groupedDatasets = collect();
         $rangeMapping = [];
         $monthlyResults = [];
-
+        // Buat dataset terpisah khusus Acuan Prediksi
+        $berangkatDataForAcuan = $berangkatData->filter(function ($item) {
+            $monthNum = intval(Carbon::parse($item->tanggal)->format('m'));
+            return $monthNum >= 1 && $monthNum <= 11;
+        });
         if (!$berangkatData->isEmpty()) {
             // Sort berangkatData to ensure berangkat is ordered from 0 upwards
             $berangkatData = $berangkatData->sortBy('berangkat');  // Sorting by 'berangkat' in ascending order
+            $berangkatDataForAcuan = $berangkatData->filter(function ($item) {
+                $monthNum = intval(Carbon::parse($item->tanggal)->format('m'));
+                return $monthNum >= 1 && $monthNum <= 11;
+            });
 
-            $frequencies = $berangkatData->groupBy('berangkat')->map(fn($group) => $group->count());
+
+            $frequencies = $berangkatDataForAcuan->groupBy('berangkat')->map(fn($group) => $group->count());
+
+
 
             $total = $frequencies->sum();
             $cumulative = 0;
@@ -156,14 +167,13 @@ class BerangkatController extends Controller
         if ($selectedMonth && isset($monthlyResults[$selectedMonth])) {
             $selectedMonthResults = $monthlyResults[$selectedMonth];
         }
-
-        // Save the best predictions for December to session
+        // Simpan prediksi terbaik Desember ke session
         $desemberKey = collect($monthlyResults)->keys()->filter(function ($key) {
             return \Carbon\Carbon::parse($key)->month === 12;
         })->first();
 
         if ($desemberKey && isset($monthlyResults[$desemberKey]['best_predictions'])) {
-            session(['montecarlo_forecast_berangkat' => $monthlyResults[$desemberKey]['best_predictions']]);
+            session(['montecarlo_forecast_desember' => $monthlyResults[$desemberKey]['best_predictions']]);
         }
 
         return view('pages.monte-carlo.berangkat.index', compact(
@@ -186,6 +196,5 @@ class BerangkatController extends Controller
 
         return ($count > 0) ? $totalApe / $count : 0;
     }
-
 
 }
