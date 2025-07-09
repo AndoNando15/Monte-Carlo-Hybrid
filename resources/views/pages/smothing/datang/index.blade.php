@@ -1,5 +1,8 @@
 @extends('layouts.base')
-
+<!-- Import Carbon class at the top of your file -->
+@php
+    use Carbon\Carbon;
+@endphp
 @section('content')
     <div class="container-fluid">
         <div class="card shadow mb-4">
@@ -145,9 +148,7 @@
                                 <!-- ABSOLUTE % ERROR -->
                                 <td>
                                     @if (!$isDesember)
-                                        {{ $data->absolute_percentage_error !== null
-                                            ? number_format($data->absolute_percentage_error * 100, 2) . '%'
-                                            : '-' }}
+                                        {{ $data->absolute_percentage_error !== null ? number_format($data->absolute_percentage_error, 4) . '%' : '-' }}
                                     @else
                                         -
                                     @endif
@@ -161,13 +162,68 @@
         </div>
         <div class="card shadow mb-4">
 
+
             <div class="card-body">
                 <!-- Tabel Akurasi dan APE Desember -->
                 <div class=" text-center" style=" background-color: #ecf7ff; width: 100%;">
                     {{-- ACUAN Prediksi Text --}}
-                    <h3 class="text-center text-primary py-2" style="font-size: 1.5rem; font-weight: bold;">
-                        | Akurasi dan APE Desember |
-                    </h3>
+                    @php
+                        // Initialize variables for accumulating sum of APE and sum of accuracy
+                        $sumAkurasi = 0;
+                        $sumAPE = 0;
+                        $total = 0;
+                    @endphp
+
+                    <!-- Process non-December data -->
+                    @foreach ($datasets_filtered as $data)
+                        @php
+                            $sumAkurasi = 0;
+                            $sumAPE = 0;
+                            $total = 0;
+                        @endphp
+
+                        @foreach ($datasets_filtered as $data)
+                            @php
+                                $month = \Carbon\Carbon::parse($data->tanggal_iso)->month;
+
+                                // Hanya proses bulan Januari–November
+                                if ($month >= 1 && $month <= 11) {
+                                    $actual = $data->datang ?? 0;
+                                    $forecast = $data->forecast ?? null;
+                                    $data->error = $actual - $forecast;
+                                    $data->absolute_error = abs($data->error);
+                                    $data->squared_error = pow($data->error, 2);
+
+                                    // Pastikan forecast dan actual valid
+                                    if ($actual != 0 && ($data->level_at ?? 0) != 0 && ($data->seasonal_st ?? 0) != 0) {
+                                        $akurasi = min($forecast, $actual) / max($forecast, $actual);
+                                        $ape = abs($data->error - $actual) / $actual;
+                                        $sumAkurasi += $akurasi;
+                                        $sumAPE += $ape;
+                                        $total++;
+                                    }
+                                }
+
+                            @endphp
+                        @endforeach
+                    @endforeach
+
+                    <div class="text-center py-2" style="background-color: #ecf7ff; width: 100%;">
+                        <h1 class="text-center mb-2 text-primary" style="font-size: 2rem; font-weight: bold;">
+                            | Perbandingan ERROR MAPE |
+                        </h1>
+                        <h5 class="text-center" style="font-size: 1.25rem; color: #555;">
+                            {{-- Rata-Rata Akurasi Prediksi:
+                            <span class="font-weight-bold" style="color: #008cff;">
+                                {{ $total > 0 ? number_format(($sumAkurasi / $total) * 100, 2) . '%' : '0%' }}
+                            </span> --}}
+                            MAPE:
+                            <span class="font-weight-bold" style="color: #f44336;">
+                                {{ isset($averageApe) ? number_format(($averageApe * 100) / 100, 4) . '%' : '-' }}
+                            </span>
+                        </h5>
+                    </div>
+
                 </div>
                 <table class="table table-bordered table-striped" style="font-size: 0.85rem; width: 100%; margin: 0 auto;">
                     <thead class="text-center bg-primary text-white">

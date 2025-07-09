@@ -148,7 +148,7 @@ class DatangControllers extends Controller
                 $data->squared_error = pow($data->error, 2);
 
                 if ($actual != 0 && ($data->level_at ?? 0) != 0 && ($data->seasonal_st ?? 0) != 0) {
-                    $data->absolute_percentage_error = abs($data->error) / $actual;
+                    $data->absolute_percentage_error = abs($data->error - $actual) / $actual;
                 } else {
                     $data->absolute_percentage_error = 0;
                 }
@@ -255,6 +255,15 @@ class DatangControllers extends Controller
             ]);
         }
 
+        // Filter data bukan Desember dan hanya yang ada APE-nya
+        $filteredApe = $datasets_filtered->filter(function ($d) {
+            $month = Carbon::parse($d->tanggal_iso)->month ?? null;
+            return $month !== 12 && isset($d->absolute_percentage_error) && $d->absolute_percentage_error !== null;
+        });
+
+        // Hitung rata-rata APE
+        $averageApe = $filteredApe->avg('absolute_percentage_error');
+
         return view('pages.smothing.datang.index', compact(
             'datasets_filtered',
             'initialTrendData',
@@ -262,7 +271,9 @@ class DatangControllers extends Controller
             'averageLevelAt',
             'desemberDataForLog',
             'tesAkurasiDatang',
-            'tesMapeDatang'
+            'tesMapeDatang',
+            'averageApe' // tambahkan ini
+
         ));
     }
 

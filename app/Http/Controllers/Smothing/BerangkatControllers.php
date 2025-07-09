@@ -157,9 +157,8 @@ class BerangkatControllers extends Controller
                 $data->absolute_error = abs($data->error);
                 $data->squared_error = pow($data->error, 2);
 
-                // Calculate APE only if actual ≠ 0 and forecast is not fallback
                 if ($actual != 0 && ($data->level_at ?? 0) != 0 && ($data->seasonal_st ?? 0) != 0) {
-                    $data->absolute_percentage_error = abs($data->error) / $actual;
+                    $data->absolute_percentage_error = abs($data->error - $actual) / $actual;
                 } else {
                     $data->absolute_percentage_error = 0;
                 }
@@ -271,6 +270,11 @@ class BerangkatControllers extends Controller
                 'tes_mape_berangkat' => $tesMapeBerangkat,
             ]);
         }
+        $filteredApe = $datasets_filtered->filter(function ($d) {
+            $month = Carbon::parse($d->tanggal_iso)->month ?? null;
+            return $month !== 12 && isset($d->absolute_percentage_error) && $d->absolute_percentage_error !== null;
+        });
+        $averageApe = $filteredApe->avg('absolute_percentage_error');
 
         // Return the view with the necessary data
         return view('pages.smothing.berangkat.index', compact(
@@ -280,7 +284,9 @@ class BerangkatControllers extends Controller
             'averageLevelAt',
             'desemberDataForLog',
             'tesAkurasiBerangkat',
-            'tesMapeBerangkat'
+            'tesMapeBerangkat',
+            'averageApe' // tambahkan ini
+
         ));
     }
 
