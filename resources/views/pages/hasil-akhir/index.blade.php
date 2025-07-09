@@ -54,7 +54,7 @@
                             @endforeach
                         </tbody>
                     </table>
-                    <div class="card shadow mb-4">
+                    {{-- <div class="card shadow mb-4">
                         <div class="card-body">
                             <div class="text-center" style="background-color: #ecf7ff;">
                                 <h4 class="text-primary font-weight-bold py-2">| Rekap Akurasi dan MAPE |</h4>
@@ -93,7 +93,7 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div>
+                    </div> --}}
 
                     {{-- <!-- Final Data Table -->
                     <div class="card shadow mb-4">
