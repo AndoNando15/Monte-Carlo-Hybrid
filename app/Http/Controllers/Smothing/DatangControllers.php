@@ -180,10 +180,11 @@ class DatangControllers extends Controller
             $data->trend_t = $trendNovemberLast * $desemberUrutan;
             $forecast = ($levelNovemberLast + $desemberUrutan * $trendNovemberLast) * $seasonal;
 
+            // Ensure forecast is within bounds (between 0 and 13)
             if ($forecast < 0) {
-                $forecast = 0;
-            } elseif ($forecast > $maxDatangValue) {
-                $forecast = $maxDatangValue;
+                $forecast = 0; // Set forecast to 0 if it's less than 0
+            } elseif ($forecast > 13) {
+                $forecast = 13; // Cap forecast at 13 if it's greater than 13
             }
 
             $data->forecast = $forecast;
@@ -192,7 +193,7 @@ class DatangControllers extends Controller
 
             $actual = $data->datang ?? 0;
             if (!is_null($data->forecast) && $actual != 0) {
-                $data->error = $actual - $data->forecast;
+                $data->error = $data->forecast - $actual;
             }
 
             $data->absolute_error = null;

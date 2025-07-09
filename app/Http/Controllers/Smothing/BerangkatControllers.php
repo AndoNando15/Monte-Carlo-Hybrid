@@ -192,13 +192,12 @@ class BerangkatControllers extends Controller
             $data->trend_t = $trendNovemberLast * $desemberUrutan;
             $forecast = ($levelNovemberLast + $desemberUrutan * $trendNovemberLast) * $seasonal;
 
-            // Batasi forecast Desember sesuai kondisi
+            // Ensure forecast is within bounds (between 0 and 13)
             if ($forecast < 0) {
-                $forecast = 0;
-            } elseif ($forecast > $maxberangkatValue) {
-                $forecast = $maxberangkatValue;
+                $forecast = 0; // Set forecast to 0 if it's less than 0
+            } elseif ($forecast > 13) {
+                $forecast = 13; // Cap forecast at 13 if it's greater than 13
             }
-
             $data->forecast = $forecast;
             $data->level_at = null; // Hidden in view
             $data->seasonal_st = null; // Hidden in view
@@ -206,7 +205,7 @@ class BerangkatControllers extends Controller
             // Calculate error only 'error'
             $actual = $data->berangkat ?? 0;
             if (!is_null($data->forecast) && $actual != 0) {
-                $data->error = $actual - $data->forecast;
+                $data->error = $data->forecast - $actual;
             }
 
             // Remove other columns in view
