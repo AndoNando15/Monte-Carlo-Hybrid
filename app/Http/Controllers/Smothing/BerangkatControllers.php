@@ -274,8 +274,17 @@ class BerangkatControllers extends Controller
             $month = Carbon::parse($d->tanggal_iso)->month ?? null;
             return $month !== 12 && isset($d->absolute_percentage_error) && $d->absolute_percentage_error !== null;
         });
-        $averageApe = $filteredApe->avg('absolute_percentage_error');
+        // Ambil semua nilai APE yang digunakan
+        // $apeValues = $filteredApe->pluck('absolute_percentage_error');
 
+        // Hitung jumlah data yang dihitung APE-nya
+        // $totalData = $filteredApe->count();
+        $averageApe = $filteredApe->avg('absolute_percentage_error');
+        // dd([
+        //     'APE Values' => $apeValues,
+        //     'Total Data' => $totalData,
+        //     'Average APE' => $averageApe
+        // ]);
         // Return the view with the necessary data
         return view('pages.smothing.berangkat.index', compact(
             'datasets_filtered',
