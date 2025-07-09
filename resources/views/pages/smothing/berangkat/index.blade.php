@@ -213,13 +213,14 @@
                         <tr>
                             <td colspan="4">Rata-rata</td>
                             <td>
-                                {{ $total > 0 ? number_format(($sumAkurasi / $total) * 100, 2) . '%' : '0%' }}
+                                {{ $tesAkurasiBerangkat > 0 ? number_format($tesAkurasiBerangkat, 2) . '%' : '0%' }}
                             </td>
                             <td>
-                                {{ $total > 0 ? number_format(($sumAPE / $total) * 100, 2) . '%' : '0.00' }}
+                                {{ $tesMapeBerangkat > 0 ? number_format($tesMapeBerangkat, 2) . '%' : '0.00' }}
                             </td>
                         </tr>
                     </tfoot>
+
                 </table>
             </div>
         </div>

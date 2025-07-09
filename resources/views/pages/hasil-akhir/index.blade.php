@@ -80,6 +80,53 @@
                             </table>
                         </div>
                     </div> --}}
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <h3 class="text-center text-primary py-2">Akurasi dan MAPE</h3>
+                            <table class="table table-bordered table-striped">
+                                <thead class="text-center bg-primary text-white">
+                                    <tr>
+                                        <th>Akurasi dan MAPE</th>
+                                        <th>Nilai</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Monte Akurasi Datang</td>
+                                        <td>{{ number_format($latestData->monte_akurasi_datang, 2) }}%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Monte MAPE Datang</td>
+                                        <td>{{ number_format($latestData->monte_mape_datang, 2) }}%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Monte Akurasi Berangkat</td>
+                                        <td>{{ number_format($latestData->monte_akurasi_berangkat, 2) }}%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Monte MAPE Berangkat</td>
+                                        <td>{{ number_format($latestData->monte_mape_berangkat, 2) }}%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tes Akurasi Datang</td>
+                                        <td>{{ number_format($latestData->tes_akurasi_datang, 2) }}%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tes MAPE Datang</td>
+                                        <td>{{ number_format($latestData->tes_mape_datang, 2) }}%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tes Akurasi Berangkat</td>
+                                        <td>{{ number_format($latestData->tes_akurasi_berangkat, 2) }}%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tes MAPE Berangkat</td>
+                                        <td>{{ number_format($latestData->tes_mape_berangkat, 2) }}%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
                 </div>
             </div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Smothing;
 
+use App\Models\AkurasiMape;
 use App\Models\Dataset;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -101,8 +102,6 @@ class BerangkatControllers extends Controller
                 }
             }
 
-
-
             if ($index > 19 && $month >= 2 && $month <= 11) {
                 $beta = 0.05;
                 $levelNow = $data->level_at ?? 0;
@@ -185,6 +184,7 @@ class BerangkatControllers extends Controller
             if ($carbonDate->month !== 12)
                 continue;
 
+            // Kalkulasi forecast untuk Desember
             $desemberUrutan++;
             $seasonalIndex = ($desemberUrutan - 1) % $seasonal_november->count();
             $seasonal = $seasonal_november[$seasonalIndex]->seasonal_st ?? 1;
@@ -192,9 +192,7 @@ class BerangkatControllers extends Controller
             $data->trend_t = $trendNovemberLast * $desemberUrutan;
             $forecast = ($levelNovemberLast + $desemberUrutan * $trendNovemberLast) * $seasonal;
 
-            // Batasi forecast Desember:
-// - jika forecast < 0 → jadikan 0
-// - jika forecast > maxberangkatValue → batasi ke maxberangkatValue
+            // Batasi forecast Desember sesuai kondisi
             if ($forecast < 0) {
                 $forecast = 0;
             } elseif ($forecast > $maxberangkatValue) {
@@ -251,12 +249,60 @@ class BerangkatControllers extends Controller
 
         // Save to session
         session(['forecast_berangkat_only' => $onlyForecastBerangkat]); // Forecast untuk berangkat
+        // Calculate Akurasi and MAPE for December
+        list($sumAkurasiBerangkat, $sumAPEBerangkat, $total) = $this->calculateAkurasiAndAPEForBerangkat($datasets_filtered);
+
+        // Calculate the final values
+        $tesAkurasiBerangkat = $sumAkurasiBerangkat / $total * 100;
+        $tesMapeBerangkat = $sumAPEBerangkat / $total * 100;
+
+        // Check if there's already a record with id = 1, and update or create accordingly
+        $akurasiMape = AkurasiMape::find(1);
+
+        if ($akurasiMape) {
+            // If it exists, update it
+            $akurasiMape->update([
+                'tes_akurasi_berangkat' => $tesAkurasiBerangkat,
+                'tes_mape_berangkat' => $tesMapeBerangkat,
+            ]);
+        } else {
+            // Otherwise, create a new one
+            AkurasiMape::create([
+                'tes_akurasi_berangkat' => $tesAkurasiBerangkat,
+                'tes_mape_berangkat' => $tesMapeBerangkat,
+            ]);
+        }
+
+        // Return the view with the necessary data
         return view('pages.smothing.berangkat.index', compact(
             'datasets_filtered',
             'initialTrendData',
             'averageInitialTrend',
             'averageLevelAt',
-            'desemberDataForLog'
+            'desemberDataForLog',
+            'tesAkurasiBerangkat',
+            'tesMapeBerangkat'
         ));
+    }
+
+    private function calculateAkurasiAndAPEForBerangkat($datasets_filtered)
+    {
+        $sumAkurasi = 0;
+        $sumAPE = 0;
+        $total = 0;
+
+        foreach ($datasets_filtered as $row) {
+            $actual = $row->berangkat;  // Use berangkat
+            $forecast = $row->forecast;
+
+            $akurasi = $forecast && $actual ? min($forecast, $actual) / max($forecast, $actual) : 0;
+            $ape = 1 - $akurasi;
+
+            $sumAkurasi += $akurasi;
+            $sumAPE += $ape;
+            $total++;
+        }
+
+        return [$sumAkurasi, $sumAPE, $total];
     }
 }
