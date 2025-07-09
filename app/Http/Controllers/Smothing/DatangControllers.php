@@ -185,6 +185,7 @@ class DatangControllers extends Controller
             if ($carbonDate->month !== 12)
                 continue;
 
+            // Kalkulasi forecast untuk Desember
             $desemberUrutan++;
             $seasonalIndex = ($desemberUrutan - 1) % $seasonal_november->count();
             $seasonal = $seasonal_november[$seasonalIndex]->seasonal_st ?? 1;
@@ -192,32 +193,32 @@ class DatangControllers extends Controller
             $data->trend_t = $trendNovemberLast * $desemberUrutan;
             $forecast = ($levelNovemberLast + $desemberUrutan * $trendNovemberLast) * $seasonal;
 
-            // Batasi forecast Desember:
-// - jika forecast < 0 → jadikan 0
-// - jika forecast > maxDatangValue → batasi ke maxDatangValue
+            // Batasi forecast Desember sesuai kondisi
             if ($forecast < 0) {
                 $forecast = 0;
             } elseif ($forecast > $maxDatangValue) {
                 $forecast = $maxDatangValue;
             }
 
+            // Simpan forecast
             $data->forecast = $forecast;
-            $data->level_at = null; // Hidden in view
-            $data->seasonal_st = null; // Hidden in view
+            $data->level_at = null; // Tidak ditampilkan di view
+            $data->seasonal_st = null; // Tidak ditampilkan di view
 
-            // Calculate error only 'error'
+            // Hitung error (hanya error)
             $actual = $data->datang ?? 0;
             if (!is_null($data->forecast) && $actual != 0) {
                 $data->error = $actual - $data->forecast;
             }
 
-            // Remove other columns in view
+            // Hilangkan kolom lain yang tidak diperlukan di view
             $data->absolute_error = null;
             $data->squared_error = null;
             $data->absolute_percentage_error = null;
 
             $data->tanggal_iso = $carbonDate->format('Y-m-d');
         }
+
 
         // === Format output for Blade
         foreach ($datasets_filtered as $data) {
@@ -242,6 +243,7 @@ class DatangControllers extends Controller
 
         $averageLevelAt = $datasets_filtered->take(20)->avg('level_at');
         // Create pure forecast array for December (only numbers)
+        // Periksa dan simpan forecast Desember ke session
         $onlyForecastDesember = collect($datasets_filtered)
             ->filter(fn($d) => Carbon::parse($d->tanggal_iso)->month === 12)
             ->values()
@@ -249,8 +251,9 @@ class DatangControllers extends Controller
             ->map(fn($v) => round($v)) // optional rounding
             ->toArray();
 
-        // Save to session
+        // Simpan ke session
         session(['forecast_desember_only' => $onlyForecastDesember]);
+
 
         return view('pages.smothing.datang.index', compact(
             'datasets_filtered',

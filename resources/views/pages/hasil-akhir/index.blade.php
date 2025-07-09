@@ -2,7 +2,6 @@
 
 @section('content')
     <div class="container-fluid">
-
         <!-- DataTales Example -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
@@ -54,6 +53,8 @@
                             @endforeach
                         </tbody>
                     </table>
+
+                    <!-- Tabel Akurasi dan MAPE -->
                     <div class="card shadow mb-4">
                         <div class="card-body">
                             <div class="text-center" style="background-color: #ecf7ff;">
@@ -69,21 +70,16 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($rekapAkurasi as $rekap)
-                                        <tr>
-                                            <td>{{ $rekap['kategori'] }}</td>
-                                            <td>{{ number_format($rekap['mape'], 2) }}%</td>
-                                            <td>{{ number_format($rekap['akurasi'], 2) }}%</td>
-                                        </tr>
-                                    @endforeach
+
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
+
+
                 </div>
             </div>
         </div>
-
     </div>
 @endsection

@@ -242,7 +242,7 @@ class BerangkatControllers extends Controller
 
         $averageLevelAt = $datasets_filtered->take(20)->avg('level_at');
         // Create pure forecast array for December (only numbers)
-        $onlyForecastDesember = collect($datasets_filtered)
+        $onlyForecastBerangkat = collect($datasets_filtered)
             ->filter(fn($d) => Carbon::parse($d->tanggal_iso)->month === 12)
             ->values()
             ->pluck('forecast')
@@ -250,8 +250,7 @@ class BerangkatControllers extends Controller
             ->toArray();
 
         // Save to session
-        session(['forecast_desember_only' => $onlyForecastDesember]);
-
+        session(['forecast_berangkat_only' => $onlyForecastBerangkat]); // Forecast untuk berangkat
         return view('pages.smothing.berangkat.index', compact(
             'datasets_filtered',
             'initialTrendData',
