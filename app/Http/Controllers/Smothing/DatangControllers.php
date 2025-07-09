@@ -19,7 +19,7 @@ class DatangControllers extends Controller
                 return Carbon::parse($data->tanggal)->format('Y-m');
             })
             ->flatMap(function ($group) {
-                return $group->sortBy('tanggal')->take(20);
+                return $group->sortBy('tanggal');  // Remove 20 data limit
             })
             ->sortBy('tanggal')
             ->values();
@@ -77,22 +77,30 @@ class DatangControllers extends Controller
             }
 
             if ($index < 20) {
+                // For the first 20 records, use the average for level_at
                 $data->level_at = $average;
             } else {
-                $alpha = 0.14527154135641;
-                $levelPrev = $previousData->level_at ?? 0;
-                $trendPrev = $previousData->trend_t ?? 0;
+                $alpha = 0.14527154135641;  // Smoothing factor for level calculation
+                $levelPrev = $previousData->level_at ?? 0;  // Previous record's level_at
+                $trendPrev = $previousData->trend_t ?? 0;  // Previous record's trend_t
 
-                $seasonalFixedIndex = $datasets_filtered->take(20)->pluck('seasonal_st')->values();
-                $seasonalIndex = $index % 20;
-                $seasonalFromFixed = $seasonalFixedIndex[$seasonalIndex] ?? 0;
 
+                // Cari seasonal dari index ke-(t-p)
+                $correspondingIndex = $index - 20;
+                // Use the seasonal index from the previous record (index-1) for the calculation
+                $seasonalFromFixed = $datasets_filtered[$correspondingIndex]->seasonal_st ?? 0;  // Get seasonal from previous record
+
+                // Ensure the seasonal index is valid (not 0) before performing the calculation
                 if ($seasonalFromFixed != 0) {
+                    // Calculate level_at using the seasonal index from the previous record
                     $data->level_at = $alpha * ($data->datang / $seasonalFromFixed) + (1 - $alpha) * ($levelPrev + $trendPrev);
                 } else {
+                    // If seasonal index is 0, set level_at to 0
                     $data->level_at = 0;
                 }
             }
+
+
 
             if ($index > 19 && $month >= 2 && $month <= 11) {
                 $beta = 0.05;
@@ -122,27 +130,22 @@ class DatangControllers extends Controller
                     : 0;
             }
 
-
-
-
             if ($index >= 20) {
-                $seasonal_base = $datasets_filtered->take(20)->values();
+                $seasonal_base = $datasets_filtered->values();  // Take all data, not just the first 20
                 $previousData = $datasets_filtered[$index - 1] ?? null;
 
                 $levelPrev = $previousData->level_at ?? 0;
                 $trendPrev = $previousData->trend_t ?? 0;
-
+                $seasonalFixedIndex = $datasets_filtered->pluck('seasonal_st')->values();  // Take all data, not just the first 20
                 $seasonalIndex = $index % 20;
-                $seasonal = $seasonal_base[$seasonalIndex]->seasonal_st ?? 0;
+                $seasonalFromFixed = $seasonalFixedIndex[$seasonalIndex] ?? 0;
 
-                if ($levelPrev == 0 || $seasonal == 0) {
+                if ($levelPrev == 0 || $seasonalFromFixed == 0) {
                     $data->forecast = 0;
                 } else {
-                    $data->forecast = ($levelPrev + $trendPrev) * $seasonal;
+                    $data->forecast = ($levelPrev + $trendPrev) * $seasonalFromFixed;
                 }
             }
-
-
 
             $actual = $data->datang ?? 0;
             $forecast = $data->forecast ?? null;
@@ -152,7 +155,7 @@ class DatangControllers extends Controller
                 $data->absolute_error = abs($data->error);
                 $data->squared_error = pow($data->error, 2);
 
-                // Hitung APE hanya jika actual ≠ 0 dan forecast bukan hasil fallback
+                // Calculate APE only if actual ≠ 0 and forecast is not fallback
                 if ($actual != 0 && ($data->level_at ?? 0) != 0 && ($data->seasonal_st ?? 0) != 0) {
                     $data->absolute_percentage_error = abs($data->error) / $actual;
                 } else {
@@ -163,7 +166,6 @@ class DatangControllers extends Controller
             $data->tanggal_iso = $carbonDate->format('Y-m-d');
         }
 
-
         // === Ambil nilai level dan trend terakhir November
         $novemberLastData = $datasets_filtered->filter(fn($d) => Carbon::parse($d->tanggal)->month === 11)->last();
         $levelNovemberLast = $novemberLastData->level_at ?? 0;
@@ -173,7 +175,7 @@ class DatangControllers extends Controller
             ->values()
             ->take(20);
 
-        // === LOOP 2: DESEMBER (forecast + error, hide kolom tertentu)
+        // === LOOP 2: DESEMBER (forecast + error, hide columns)
         $desemberUrutan = 0;
         foreach ($datasets_filtered as $index => $data) {
             $carbonDate = Carbon::parse($data->tanggal);
@@ -186,16 +188,16 @@ class DatangControllers extends Controller
 
             $data->trend_t = $trendNovemberLast * $desemberUrutan;
             $data->forecast = ($levelNovemberLast + $desemberUrutan * $trendNovemberLast) * $seasonal;
-            $data->level_at = null; // disembunyikan di view
-            $data->seasonal_st = null; // disembunyikan di view
+            $data->level_at = null; // Hidden in view
+            $data->seasonal_st = null; // Hidden in view
 
-            // Hitung error hanya 'error' saja
+            // Calculate error only 'error'
             $actual = $data->datang ?? 0;
             if (!is_null($data->forecast) && $actual != 0) {
                 $data->error = $actual - $data->forecast;
             }
 
-            // Hilangkan kolom lainnya di tampilan
+            // Remove other columns in view
             $data->absolute_error = null;
             $data->squared_error = null;
             $data->absolute_percentage_error = null;
@@ -203,7 +205,7 @@ class DatangControllers extends Controller
             $data->tanggal_iso = $carbonDate->format('Y-m-d');
         }
 
-        // === Format tampil ke Blade
+        // === Format output for Blade
         foreach ($datasets_filtered as $data) {
             $carbon = Carbon::parse($data->tanggal)->locale('id');
             $data->tanggal = $carbon->isoFormat('D MMMM YYYY');
@@ -225,15 +227,15 @@ class DatangControllers extends Controller
             });
 
         $averageLevelAt = $datasets_filtered->take(20)->avg('level_at');
-        // Buat array forecast murni dari Desember (hanya angka saja)
+        // Create pure forecast array for December (only numbers)
         $onlyForecastDesember = collect($datasets_filtered)
             ->filter(fn($d) => Carbon::parse($d->tanggal_iso)->month === 12)
             ->values()
             ->pluck('forecast')
-            ->map(fn($v) => round($v)) // optional: pembulatan
+            ->map(fn($v) => round($v)) // optional rounding
             ->toArray();
 
-        // Simpan ke session
+        // Save to session
         session(['forecast_desember_only' => $onlyForecastDesember]);
 
         return view('pages.smothing.datang.index', compact(
