@@ -13,6 +13,8 @@ class DatangController extends Controller
     public function index(Request $request)
     {
         $datangData = Dataset::select('datang', 'tanggal')->get();
+        $datangData = $datangData->sortBy('datang');  // Sort by 'datang' in descending order
+
         $groupedDatasets = collect();
         $rangeMapping = [];
         $monthlyResults = [];

@@ -193,7 +193,7 @@ class BerangkatController extends Controller
                 'monte_mape_berangkat' => $selectedMonthResults['mape'] ?? 0,
             ]);
         }
-        dd($selectedMonthResults);
+        // dd($selectedMonthResults);
 
         return view('pages.monte-carlo.berangkat.index', compact(
             'groupedDatasets',
