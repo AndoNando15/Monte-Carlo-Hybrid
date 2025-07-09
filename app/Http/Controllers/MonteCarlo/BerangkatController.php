@@ -102,8 +102,8 @@ class BerangkatController extends Controller
                         $error = abs($sim - $actualValue);
 
                         // Correct accuracy formula: MIN(predicted, actual) / MAX(predicted, actual) * 100
-                        $accuracy = min($sim, $actualValue) / max($sim, $actualValue);
-
+                        $maxVal = max($sim, $actualValue);
+                        $accuracy = ($maxVal == 0) ? 0 : min($sim, $actualValue) / $maxVal;
                         // Calculate absolute percentage error (APE)
                         $ape = ($actualValue != 0)
                             ? abs(($sim - $actualValue) / $actualValue)
