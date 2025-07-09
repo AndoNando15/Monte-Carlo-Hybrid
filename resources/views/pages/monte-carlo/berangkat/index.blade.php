@@ -289,6 +289,7 @@
                         <span class="font-weight-bold" style="color: #f44336;">
                             {{ sprintf('%.2f', $selectedMonthResults['mape'] ?? 0) }}%</span>
                     </h5>
+
                 </div>
                 {{-- Tabel Prediksi, Data Asli, Selisih, Error, dan Akurasi --}}
                 <div class="table-responsive mt-4">

@@ -54,7 +54,7 @@
                             @endforeach
                         </tbody>
                     </table>
-                    {{-- <div class="card shadow mb-4">
+                    <div class="card shadow mb-4">
                         <div class="card-body">
                             <div class="text-center" style="background-color: #ecf7ff;">
                                 <h4 class="text-primary font-weight-bold py-2">| Rekap Akurasi dan MAPE |</h4>
@@ -69,64 +69,71 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($rekapAkurasi as $rekap)
-                                        <tr>
-                                            <td>{{ $rekap['kategori'] }}</td>
-                                            <td>{{ number_format($rekap['mape'], 2) }}%</td>
-                                            <td>{{ number_format($rekap['akurasi'], 2) }}%</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div> --}}
-                    <div class="card shadow mb-4">
-                        <div class="card-body">
-                            <h3 class="text-center text-primary py-2">Akurasi dan MAPE</h3>
-                            <table class="table table-bordered table-striped">
-                                <thead class="text-center bg-primary text-white">
+                                    <!-- Displaying Akurasi and MAPE for different categories -->
                                     <tr>
-                                        <th>Akurasi dan MAPE</th>
-                                        <th>Nilai</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Monte Akurasi Datang</td>
-                                        <td>{{ number_format($latestData->monte_akurasi_datang, 2) }}%</td>
+                                        <td>Monte Carlo - Datang</td>
+                                        <td>{{ number_format($akurasiMape->monte_mape_datang ?? 0, 2) }}%</td>
+                                        <td>{{ number_format($akurasiMape->monte_akurasi_datang ?? 0, 2) }}%</td>
                                     </tr>
                                     <tr>
-                                        <td>Monte MAPE Datang</td>
-                                        <td>{{ number_format($latestData->monte_mape_datang, 2) }}%</td>
+                                        <td>Monte Carlo - Berangkat</td>
+                                        <td>{{ number_format($akurasiMape->monte_mape_berangkat ?? 0, 2) }}%</td>
+                                        <td>{{ number_format($akurasiMape->monte_akurasi_berangkat ?? 0, 2) }}%</td>
                                     </tr>
                                     <tr>
-                                        <td>Monte Akurasi Berangkat</td>
-                                        <td>{{ number_format($latestData->monte_akurasi_berangkat, 2) }}%</td>
+                                        <td>TES - Datang</td>
+                                        <td>{{ number_format($akurasiMape->tes_mape_datang ?? 0, 2) }}%</td>
+                                        <td>{{ number_format($akurasiMape->tes_akurasi_datang ?? 0, 2) }}%</td>
                                     </tr>
                                     <tr>
-                                        <td>Monte MAPE Berangkat</td>
-                                        <td>{{ number_format($latestData->monte_mape_berangkat, 2) }}%</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Tes Akurasi Datang</td>
-                                        <td>{{ number_format($latestData->tes_akurasi_datang, 2) }}%</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Tes MAPE Datang</td>
-                                        <td>{{ number_format($latestData->tes_mape_datang, 2) }}%</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Tes Akurasi Berangkat</td>
-                                        <td>{{ number_format($latestData->tes_akurasi_berangkat, 2) }}%</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Tes MAPE Berangkat</td>
-                                        <td>{{ number_format($latestData->tes_mape_berangkat, 2) }}%</td>
+                                        <td>TES - Berangkat</td>
+                                        <td>{{ number_format($akurasiMape->tes_mape_berangkat ?? 0, 2) }}%</td>
+                                        <td>{{ number_format($akurasiMape->tes_akurasi_berangkat ?? 0, 2) }}%</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
+
+                    <!-- Final Data Table -->
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <div class="text-center" style="background-color: #ecf7ff;">
+                                <h4 class="text-primary font-weight-bold py-2">| Data Final |</h4>
+                            </div>
+                            <table class="table table-sm table-bordered table-striped text-center"
+                                style="font-size: 0.9rem;">
+                                <thead class="bg-primary text-white">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tanggal</th>
+                                        <th>Datang</th>
+                                        <th>Berangkat</th>
+                                        <th>Prediksi Monte Carlo Datang</th>
+                                        <th>Prediksi TES Datang</th>
+                                        <th>Prediksi Monte Carlo Berangkat</th>
+                                        <th>Prediksi TES Berangkat</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($finalData as $data)
+                                        <tr>
+                                            <td>{{ $data['id'] }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($data['tanggal'])->format('d F Y') }}</td>
+                                            <td>{{ number_format($data['datang'], 2) }}</td>
+                                            <td>{{ number_format($data['berangkat'], 2) }}</td>
+                                            <td>{{ number_format($data['prediksi_montecarlo_datang'] ?? 0, 2) }}</td>
+                                            <td>{{ number_format($data['prediksi_tes_datang'] ?? 0, 2) }}</td>
+                                            <td>{{ number_format($data['prediksi_montecarlo_berangkat'] ?? 0, 2) }}</td>
+                                            <td>{{ number_format($data['prediksi_tes_berangkat'] ?? 0, 2) }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+
 
                 </div>
             </div>

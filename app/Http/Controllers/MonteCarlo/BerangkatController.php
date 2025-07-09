@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MonteCarlo;
 
 use App\Http\Controllers\Controller;
 use App\Models\Dataset;
+use App\Models\AkurasiMape;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -15,11 +16,13 @@ class BerangkatController extends Controller
         $groupedDatasets = collect();
         $rangeMapping = [];
         $monthlyResults = [];
+
         // Buat dataset terpisah khusus Acuan Prediksi
         $berangkatDataForAcuan = $berangkatData->filter(function ($item) {
             $monthNum = intval(Carbon::parse($item->tanggal)->format('m'));
             return $monthNum >= 1 && $monthNum <= 11;
         });
+
         if (!$berangkatData->isEmpty()) {
             // Sort berangkatData to ensure berangkat is ordered from 0 upwards
             $berangkatData = $berangkatData->sortBy('berangkat');  // Sorting by 'berangkat' in ascending order
@@ -28,10 +31,7 @@ class BerangkatController extends Controller
                 return $monthNum >= 1 && $monthNum <= 11;
             });
 
-
             $frequencies = $berangkatDataForAcuan->groupBy('berangkat')->map(fn($group) => $group->count());
-
-
 
             $total = $frequencies->sum();
             $cumulative = 0;
@@ -167,6 +167,7 @@ class BerangkatController extends Controller
         if ($selectedMonth && isset($monthlyResults[$selectedMonth])) {
             $selectedMonthResults = $monthlyResults[$selectedMonth];
         }
+
         // Simpan prediksi terbaik Desember ke session
         $desemberKey = collect($monthlyResults)->keys()->filter(function ($key) {
             return \Carbon\Carbon::parse($key)->month === 12;
@@ -175,6 +176,24 @@ class BerangkatController extends Controller
         if ($desemberKey && isset($monthlyResults[$desemberKey]['best_predictions'])) {
             session(['montecarlo_forecast_desember' => $monthlyResults[$desemberKey]['best_predictions']]);
         }
+
+        // Save or update the AkurasiMape record for Berangkat (ID = 1)
+        $akurasiMape = AkurasiMape::find(1);
+
+        if ($akurasiMape) {
+            // If the row exists, update the values for monte_akurasi_berangkat and monte_mape_berangkat
+            $akurasiMape->update([
+                'monte_akurasi_berangkat' => $selectedMonthResults['accuracy'] ?? 0,
+                'monte_mape_berangkat' => $selectedMonthResults['mape'] ?? 0,
+            ]);
+        } else {
+            // If the row does not exist, create a new row
+            AkurasiMape::create([
+                'monte_akurasi_berangkat' => $selectedMonthResults['accuracy'] ?? 0,
+                'monte_mape_berangkat' => $selectedMonthResults['mape'] ?? 0,
+            ]);
+        }
+        dd($selectedMonthResults);
 
         return view('pages.monte-carlo.berangkat.index', compact(
             'groupedDatasets',
@@ -196,5 +215,4 @@ class BerangkatController extends Controller
 
         return ($count > 0) ? $totalApe / $count : 0;
     }
-
 }
