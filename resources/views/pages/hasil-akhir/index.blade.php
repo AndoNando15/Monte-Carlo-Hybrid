@@ -184,20 +184,26 @@
                 label: 'Aktual Datang',
                 data: @json($finalData->pluck('datang')),
                 borderColor: 'blue',
-                backgroundColor: 'transparent', // Mengubah background menjadi transparan
-                fill: false // Tidak mengisi area bawah grafik
+                backgroundColor: 'transparent',
+                fill: false,
+                pointStyle: 'circle', // Lingkaran untuk Aktual
+                pointRadius: 5, // Ukuran titik
             }, {
                 label: 'Monte Carlo Datang',
                 data: @json($finalData->pluck('prediksi_montecarlo_datang')),
                 borderColor: 'orange',
-                backgroundColor: 'transparent', // Mengubah background menjadi transparan
-                fill: false // Tidak mengisi area bawah grafik
+                backgroundColor: 'transparent',
+                fill: false,
+                pointStyle: 'rect', // Kotak untuk Monte Carlo
+                pointRadius: 5, // Ukuran titik
             }, {
                 label: 'Prediksi TES Datang',
                 data: @json($finalData->pluck('prediksi_tes_datang')),
                 borderColor: 'gray',
-                backgroundColor: 'transparent', // Mengubah background menjadi transparan
-                fill: false // Tidak mengisi area bawah grafik
+                backgroundColor: 'transparent',
+                fill: false,
+                pointStyle: 'triangle', // Segitiga untuk TES
+                pointRadius: 5, // Ukuran titik
             }]
         };
 
@@ -207,20 +213,26 @@
                 label: 'Aktual Berangkat',
                 data: @json($finalData->pluck('berangkat')),
                 borderColor: 'blue',
-                backgroundColor: 'transparent', // Mengubah background menjadi transparan
-                fill: false // Tidak mengisi area bawah grafik
+                backgroundColor: 'transparent',
+                fill: false,
+                pointStyle: 'circle', // Lingkaran untuk Aktual
+                pointRadius: 5, // Ukuran titik
             }, {
                 label: 'Monte Carlo Berangkat',
                 data: @json($finalData->pluck('prediksi_montecarlo_berangkat')),
                 borderColor: 'orange',
-                backgroundColor: 'transparent', // Mengubah background menjadi transparan
-                fill: false // Tidak mengisi area bawah grafik
+                backgroundColor: 'transparent',
+                fill: false,
+                pointStyle: 'rect', // Kotak untuk Monte Carlo
+                pointRadius: 5, // Ukuran titik
             }, {
                 label: 'Prediksi TES Berangkat',
                 data: @json($finalData->pluck('prediksi_tes_berangkat')),
                 borderColor: 'gray',
-                backgroundColor: 'transparent', // Mengubah background menjadi transparan
-                fill: false // Tidak mengisi area bawah grafik
+                backgroundColor: 'transparent',
+                fill: false,
+                pointStyle: 'triangle', // Segitiga untuk TES
+                pointRadius: 5, // Ukuran titik
             }]
         };
 
@@ -229,8 +241,8 @@
             data: dataKedatangan,
             options: {
                 responsive: true,
-                maintainAspectRatio: false, // Menonaktifkan pengaturan rasio aspek default
-                height: 300, // Mengatur tinggi grafik
+                maintainAspectRatio: false,
+                height: 300,
                 plugins: {
                     title: {
                         display: true,
@@ -238,13 +250,16 @@
                     },
                     legend: {
                         position: 'top',
+                        labels: {
+                            usePointStyle: true, // Menampilkan simbol yang sesuai di legenda
+                        }
                     },
                 },
                 scales: {
                     y: {
                         beginAtZero: true
                     }
-                }
+                },
             }
         });
 
@@ -253,8 +268,8 @@
             data: dataKeberangkatan,
             options: {
                 responsive: true,
-                maintainAspectRatio: false, // Menonaktifkan pengaturan rasio aspek default
-                height: 300, // Mengatur tinggi grafik
+                maintainAspectRatio: false,
+                height: 300,
                 plugins: {
                     title: {
                         display: true,
@@ -262,13 +277,16 @@
                     },
                     legend: {
                         position: 'top',
+                        labels: {
+                            usePointStyle: true, // Menampilkan simbol yang sesuai di legenda
+                        }
                     },
                 },
                 scales: {
                     y: {
                         beginAtZero: true
                     }
-                }
+                },
             }
         });
     </script>
