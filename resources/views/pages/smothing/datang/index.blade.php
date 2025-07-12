@@ -213,11 +213,11 @@
                             | Perbandingan ERROR MAPE |
                         </h1>
                         <h5 class="text-center" style="font-size: 1.25rem; color: #555;">
-                            {{-- Rata-Rata Akurasi Prediksi:
+                            Rata-Rata Akurasi Prediksi:
                             <span class="font-weight-bold" style="color: #008cff;">
-                                {{ $total > 0 ? number_format(($sumAkurasi / $total) * 100, 2) . '%' : '0%' }}
-                            </span> --}}
-                            MAPE:
+                                {{ $total > 0 ? number_format(100 - ($averageApe * 100) / 100, 2) . '%' : '0%' }}
+                            </span>
+                            dan MAPE:
                             <span class="font-weight-bold" style="color: #f44336;">
                                 {{ isset($averageApe) ? number_format(($averageApe * 100) / 100, 2) . '%' : '-' }}
                             </span>
@@ -265,7 +265,7 @@
                             </tr>
                         @endforeach
                     </tbody>
-                    <tfoot class="bg-light text-center font-weight-bold">
+                    {{-- <tfoot class="bg-light text-center font-weight-bold">
                         <tr>
                             <td colspan="4">Rata-rata</td>
                             <td>
@@ -275,7 +275,7 @@
                                 {{ $total > 0 ? number_format(($sumAPE / $total) * 100, 2) . '%' : '0.00' }}
                             </td>
                         </tr>
-                    </tfoot>
+                    </tfoot> --}}
                 </table>
             </div>
         </div>

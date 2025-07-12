@@ -137,8 +137,139 @@
 
 
                 </div>
+
+
+            </div>
+
+        </div>
+        <div class="card shadow mb-4">
+
+            <div class="card-body">
+                <div class=" text-center" style=" background-color: #ecf7ff; width: 100%;">
+                    <h3 class="text-center text-primary py-2" style="font-size: 1.5rem; font-weight: bold;">
+                        | Grafik Hasil Visualisasi |
+                    </h3>
+                </div>
+                <!-- Grafik Kedatangan -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h4 class="m-0 font-weight-bold text-primary">Hasil Visualisasi Kedatangan</h4>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="grafikKedatangan" style="height: 300px;"></canvas>
+                    </div>
+                </div>
+
+                <!-- Grafik Keberangkatan -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h4 class="m-0 font-weight-bold text-primary">Hasil Visualisasi Keberangkatan</h4>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="grafikKeberangkatan" style="height: 300px;"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
 
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const grafikKedatangan = document.getElementById('grafikKedatangan').getContext('2d');
+        const grafikKeberangkatan = document.getElementById('grafikKeberangkatan').getContext('2d');
+
+        const dataKedatangan = {
+            labels: @json($finalData->pluck('id')), // Menyusun label berdasarkan ID
+            datasets: [{
+                label: 'Aktual Datang',
+                data: @json($finalData->pluck('datang')),
+                borderColor: 'blue',
+                backgroundColor: 'transparent', // Mengubah background menjadi transparan
+                fill: false // Tidak mengisi area bawah grafik
+            }, {
+                label: 'Monte Carlo Datang',
+                data: @json($finalData->pluck('prediksi_montecarlo_datang')),
+                borderColor: 'orange',
+                backgroundColor: 'transparent', // Mengubah background menjadi transparan
+                fill: false // Tidak mengisi area bawah grafik
+            }, {
+                label: 'Prediksi TES Datang',
+                data: @json($finalData->pluck('prediksi_tes_datang')),
+                borderColor: 'gray',
+                backgroundColor: 'transparent', // Mengubah background menjadi transparan
+                fill: false // Tidak mengisi area bawah grafik
+            }]
+        };
+
+        const dataKeberangkatan = {
+            labels: @json($finalData->pluck('id')), // Menyusun label berdasarkan ID
+            datasets: [{
+                label: 'Aktual Berangkat',
+                data: @json($finalData->pluck('berangkat')),
+                borderColor: 'blue',
+                backgroundColor: 'transparent', // Mengubah background menjadi transparan
+                fill: false // Tidak mengisi area bawah grafik
+            }, {
+                label: 'Monte Carlo Berangkat',
+                data: @json($finalData->pluck('prediksi_montecarlo_berangkat')),
+                borderColor: 'orange',
+                backgroundColor: 'transparent', // Mengubah background menjadi transparan
+                fill: false // Tidak mengisi area bawah grafik
+            }, {
+                label: 'Prediksi TES Berangkat',
+                data: @json($finalData->pluck('prediksi_tes_berangkat')),
+                borderColor: 'gray',
+                backgroundColor: 'transparent', // Mengubah background menjadi transparan
+                fill: false // Tidak mengisi area bawah grafik
+            }]
+        };
+
+        new Chart(grafikKedatangan, {
+            type: 'line',
+            data: dataKedatangan,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, // Menonaktifkan pengaturan rasio aspek default
+                height: 300, // Mengatur tinggi grafik
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Grafik Kedatangan'
+                    },
+                    legend: {
+                        position: 'top',
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        new Chart(grafikKeberangkatan, {
+            type: 'line',
+            data: dataKeberangkatan,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, // Menonaktifkan pengaturan rasio aspek default
+                height: 300, // Mengatur tinggi grafik
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Grafik Keberangkatan'
+                    },
+                    legend: {
+                        position: 'top',
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 @endsection
