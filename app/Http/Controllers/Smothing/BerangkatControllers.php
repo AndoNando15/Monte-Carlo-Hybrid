@@ -158,7 +158,7 @@ class BerangkatControllers extends Controller
                 $data->squared_error = pow($data->error, 2);
 
                 if ($actual != 0 && ($data->level_at ?? 0) != 0 && ($data->seasonal_st ?? 0) != 0) {
-                    $data->absolute_percentage_error = abs($data->forecast - $actual) / $actual;
+                    $data->absolute_percentage_error = abs($data->error - $actual) / $actual;
                 } else {
                     $data->absolute_percentage_error = 0;
                 }

@@ -197,7 +197,7 @@
                                     // Pastikan forecast dan actual valid
                                     if ($actual != 0 && ($data->level_at ?? 0) != 0 && ($data->seasonal_st ?? 0) != 0) {
                                         $akurasi = min($forecast, $actual) / max($forecast, $actual);
-                                        $ape = abs($data->forecast - $actual) / $actual;
+                                        $ape = abs($data->error - $actual) / $actual;
                                         $sumAkurasi += $akurasi;
                                         $sumAPE += $ape;
                                         $total++;
